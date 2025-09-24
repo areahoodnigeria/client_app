@@ -84,6 +84,7 @@ const Signup = () => {
         ...formData,
         userType,
       });
+      console.log(response);
 
       // Simulate API response delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
