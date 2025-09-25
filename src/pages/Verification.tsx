@@ -27,7 +27,7 @@ const Verification = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(
+      await axios.post(
         `${api_url}/auth/verify-otp`,
         { otp },
         {
