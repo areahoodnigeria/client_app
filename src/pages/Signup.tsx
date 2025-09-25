@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Users, Building } from "lucide-react";
 import axios from "axios";
+import { api_url } from "../utils/constants";
 
 const Signup = () => {
-  const [userType, setUserType] = useState("neighbor");
+  const navigate = useNavigate();
+  const [userType, setUserType] = useState("user");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -80,29 +82,32 @@ const Signup = () => {
 
     try {
       // Simulate API call with axios
-      const response = await axios.post("/api/signup", {
-        ...formData,
-        userType,
+      const response = await axios.post(`${api_url}/auth/register`, {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        account_type: userType,
       });
       console.log(response);
 
-      // Simulate API response delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      if (Math.random() > 0.1) {
-        // 90% success rate for demo
-        setMessage("Account created successfully! Welcome to AreaHood!");
-        // Reset form
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
-        });
-      } else {
-        setMessage("Email already exists. Please try a different email.");
-      }
+      setMessage(
+        "Account created successfully! Please check your email for verification code."
+      );
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+      });
+      // Redirect to verification page after 2 seconds
+      setTimeout(() => {
+        navigate("/verification");
+      }, 2000);
     } catch (error) {
+      console.log(error);
+
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 409) {
           setMessage("Email already exists. Please try a different email.");
@@ -167,9 +172,9 @@ const Signup = () => {
               {/* Neighbor Option */}
               <button
                 type="button"
-                onClick={() => setUserType("neighbor")}
+                onClick={() => setUserType("user")}
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  userType === "neighbor"
+                  userType === "user"
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50"
                 }`}
@@ -177,7 +182,7 @@ const Signup = () => {
                 <div className="flex items-center">
                   <div
                     className={`w-4 h-4 rounded-full border-2 ${
-                      userType === "neighbor"
+                      userType === "user"
                         ? "border-primary bg-primary"
                         : "border-muted-foreground"
                     }`}

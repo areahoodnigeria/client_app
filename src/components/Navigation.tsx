@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "./Button";
 import { useState } from "react";
+import logo from "../assets/logo.png";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,8 +17,9 @@ const Navigation = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center hover:opacity-80 transition-opacity"
           >
+            <img src={logo} className="w-10" alt="" />
             <span className="text-xl font-bold text-primary">AreaHood</span>
           </Link>
 

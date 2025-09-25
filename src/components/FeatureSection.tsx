@@ -1,130 +1,131 @@
+import {
+  Users,
+  MapPin,
+  MessageSquare,
+  Shield,
+  Store,
+  TrendingUp,
+} from "lucide-react";
+
+const userFeatures = [
+  {
+    icon: MessageSquare,
+    title: "Neighborhood Feed",
+    description:
+      "Share updates, ask questions, and stay connected with your neighbors through posts and comments.",
+  },
+  {
+    icon: Users,
+    title: "Community Groups",
+    description:
+      "Join local groups based on interests, organize events, and build meaningful connections.",
+  },
+  {
+    icon: MapPin,
+    title: "Local Discovery",
+    description:
+      "Find local businesses, services, and hidden gems in your neighborhood.",
+  },
+  {
+    icon: Shield,
+    title: "Safety Reports",
+    description:
+      "Report incidents and stay informed about safety updates in your area.",
+  },
+];
+
+const orgFeatures = [
+  {
+    icon: Store,
+    title: "Business Profile",
+    description:
+      "Create a compelling profile showcasing your business, services, and special offers.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Local Promotion",
+    description:
+      "Reach your neighborhood customers with targeted posts and promotions.",
+  },
+  {
+    icon: MapPin,
+    title: "Discovery Visibility",
+    description:
+      "Appear in local discovery searches and attract new customers nearby.",
+  },
+  {
+    icon: Users,
+    title: "Community Engagement",
+    description:
+      "Build relationships with local customers and become a trusted neighborhood business.",
+  },
+];
+
 const FeatureSection = () => {
-  const features = [
-    {
-      title: "Local Events",
-      description:
-        "Discover and join events happening in your neighborhood. From block parties to community meetings.",
-      icon: "🎉",
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      title: "Neighborhood Groups",
-      description:
-        "Connect with neighbors who share your interests. Join groups for gardening, sports, or local causes.",
-      icon: "👥",
-      color: "from-green-500 to-green-600",
-    },
-    {
-      title: "Community Resources",
-      description:
-        "Access local services, emergency contacts, and helpful resources shared by your community.",
-      icon: "📚",
-      color: "from-purple-500 to-purple-600",
-    },
-    {
-      title: "Safety Alerts",
-      description:
-        "Stay informed about local safety updates, weather alerts, and emergency notifications.",
-      icon: "🛡️",
-      color: "from-red-500 to-red-600",
-    },
-    {
-      title: "Local Marketplace",
-      description:
-        "Buy, sell, or trade items with your neighbors. Support local businesses and reduce waste.",
-      icon: "🛒",
-      color: "from-orange-500 to-orange-600",
-    },
-    {
-      title: "Community Calendar",
-      description:
-        "Keep track of important dates, meetings, and events in your neighborhood calendar.",
-      icon: "📅",
-      color: "from-teal-500 to-teal-600",
-    },
-  ];
-
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-secondary/30">
+    <section className="py-20 bg-gradient-warm">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Everything Your Community Needs
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            AreaHood brings neighbors together with powerful tools for
-            communication, organization, and community building.
-          </p>
-        </div>
+        {/* For Neighbors */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              For Neighbors
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to stay connected and engaged with your local
+              community.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="group relative bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`text-4xl p-3 rounded-lg bg-gradient-to-r ${feature.color} text-white shadow-sm`}
-                >
-                  {feature.icon}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {userFeatures.map((feature, index) => (
+              <div
+                key={index}
+                className="shadow-card border-0 hover:shadow-soft transition-shadow bg-white rounded-lg p-12"
+              >
+                <div className="text-center">
+                  <feature.icon className="w-12 h-12 text-primary mx-auto mb-4" />
+                  <p className="text-lg">{feature.title}</p>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                <div>
+                  <p className="text-center text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Stats section */}
-        <div className="mt-20 bg-card border border-border rounded-2xl p-8 md:p-12">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-foreground mb-4">
-              Building Stronger Communities
-            </h3>
-            <p className="text-muted-foreground">
-              Join thousands of neighbors who are already connected through
-              AreaHood
+        {/* For Organizations */}
+        <div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              For Organizations
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Connect with your local community and grow your business through
+              authentic relationships.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                500+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {orgFeatures.map((feature, index) => (
+              <div
+                key={index}
+                className="shadow-card border-0 hover:shadow-soft transition-shadow bg-white rounded-lg p-12"
+              >
+                <div className="text-center">
+                  <feature.icon className="w-12 h-12 text-primary mx-auto mb-4" />
+                  <p className="text-lg">{feature.title}</p>
+                </div>
+                <div>
+                  <p className="text-center text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Active Communities
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                10K+
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Neighbors Connected
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                2K+
-              </div>
-              <div className="text-sm text-muted-foreground">Events Hosted</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                50+
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Cities Covered
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

@@ -4,27 +4,18 @@ const Footer = () => {
   const footerLinks = {
     product: [
       { name: "Features", href: "/features" },
-      { name: "Pricing", href: "/pricing" },
       { name: "Community Guidelines", href: "/guidelines" },
       { name: "Safety", href: "/safety" },
     ],
     company: [
       { name: "About Us", href: "/about" },
       { name: "Careers", href: "/careers" },
-      { name: "Press", href: "/press" },
       { name: "Contact", href: "/contact" },
     ],
     support: [
       { name: "Help Center", href: "/help" },
-      { name: "Community Forum", href: "/forum" },
       { name: "Privacy Policy", href: "/privacy" },
       { name: "Terms of Service", href: "/terms" },
-    ],
-    resources: [
-      { name: "Blog", href: "/blog" },
-      { name: "Success Stories", href: "/stories" },
-      { name: "API Documentation", href: "/api" },
-      { name: "Developer Resources", href: "/developers" },
     ],
   };
 
@@ -127,24 +118,6 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
-              Resources
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
