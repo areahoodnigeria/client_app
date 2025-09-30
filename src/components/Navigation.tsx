@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "./Button";
 import { useState } from "react";
-import logo from "../assets/logo.png";
+import { Home } from "lucide-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,10 +17,12 @@ const Navigation = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-3 cursor-glow hover:opacity-80 transition-opacity"
           >
-            <img src={logo} className="w-10" alt="" />
-            <span className="text-xl font-bold text-primary">AreaHood</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg">
+              <Home className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gradient">AreaHood</span>
           </Link>
 
           {/* Desktop Auth Buttons */}
