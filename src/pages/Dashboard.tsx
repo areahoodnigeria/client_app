@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-import Navigation from "../components/Navigation";
-import Footer from "../components/Footer";
 
 const Dashboard = () => {
   const navigate = useNavigate();
