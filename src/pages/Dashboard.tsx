@@ -97,8 +97,6 @@ const Dashboard = () => {
         ></div>
       </div>
 
-      <Navigation />
-
       <main className="section-padding relative z-10">
         {/* Welcome Section */}
         <section className="py-12">
@@ -262,8 +260,6 @@ const Dashboard = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

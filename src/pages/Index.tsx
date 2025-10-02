@@ -1,101 +1,119 @@
 import { Link } from "react-router-dom";
-import { 
-  Users, 
-  MapPin, 
-  MessageSquare, 
-  Shield, 
+import {
+  Users,
+  MapPin,
+  MessageSquare,
+  Shield,
   Calendar,
   Star,
   ArrowRight,
   CheckCircle,
   Heart,
-  Zap
+  Zap,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../components/Card";
 
 const features = [
   {
     icon: MessageSquare,
     title: "Neighborhood Feed",
-    description: "Share updates, ask questions, and stay connected with your neighbors through posts and comments."
+    description:
+      "Share updates, ask questions, and stay connected with your neighbors through posts and comments.",
   },
   {
     icon: Users,
     title: "Community Groups",
-    description: "Join local groups based on interests, organize events, and build meaningful connections."
+    description:
+      "Join local groups based on interests, organize events, and build meaningful connections.",
   },
   {
     icon: MapPin,
     title: "Local Discovery",
-    description: "Find local businesses, services, and hidden gems in your neighborhood."
+    description:
+      "Find local businesses, services, and hidden gems in your neighborhood.",
   },
   {
     icon: Shield,
     title: "Safety Reports",
-    description: "Report incidents and stay informed about safety updates in your area."
+    description:
+      "Report incidents and stay informed about safety updates in your area.",
   },
   {
     icon: Calendar,
     title: "Local Events",
-    description: "Discover and join events happening in your neighborhood, from block parties to community meetings."
+    description:
+      "Discover and join events happening in your neighborhood, from block parties to community meetings.",
   },
   {
     icon: Star,
     title: "Reviews & Ratings",
-    description: "Share and read reviews of local businesses and services from trusted neighbors."
-  }
+    description:
+      "Share and read reviews of local businesses and services from trusted neighbors.",
+  },
 ];
 
 const steps = [
   {
     number: "01",
     title: "Sign Up",
-    description: "Create your account and verify your neighborhood address to join your local community."
+    description:
+      "Create your account and verify your neighborhood address to join your local community.",
   },
   {
-    number: "02", 
+    number: "02",
     title: "Connect",
-    description: "Find and connect with neighbors, join groups, and start building relationships."
+    description:
+      "Find and connect with neighbors, join groups, and start building relationships.",
   },
   {
     number: "03",
     title: "Engage",
-    description: "Share updates, discover local events, and participate in your community's growth."
-  }
+    description:
+      "Share updates, discover local events, and participate in your community's growth.",
+  },
 ];
 
 const testimonials = [
   {
     name: "Sarah Johnson",
     role: "Resident",
-    content: "AreaHood has completely transformed how I connect with my neighbors. I've made so many new friends!",
+    content:
+      "AreaHood has completely transformed how I connect with my neighbors. I've made so many new friends!",
     avatar: "SJ",
-    rating: 5
+    rating: 5,
   },
   {
     name: "Mike Chen",
     role: "Local Business Owner",
-    content: "As a small business owner, AreaHood has helped me reach more local customers than ever before.",
+    content:
+      "As a small business owner, AreaHood has helped me reach more local customers than ever before.",
     avatar: "MC",
-    rating: 5
+    rating: 5,
   },
   {
     name: "Emily Rodriguez",
     role: "Community Organizer",
-    content: "The event planning features make organizing neighborhood gatherings so much easier.",
+    content:
+      "The event planning features make organizing neighborhood gatherings so much easier.",
     avatar: "ER",
-    rating: 5
-  }
+    rating: 5,
+  },
 ];
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background with Parallax Effect */}
@@ -104,7 +122,7 @@ const Index = () => {
             <img
               src="https://thewhistler.ng/wp-content/uploads/2020/12/Millennium-Park-Abuja-1.jpg"
               alt="Community neighborhood scene"
-              className="w-full h-full object-cover"
+              className="hidden md:block w-full h-full object-cover"
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-background/50"></div>
@@ -128,15 +146,18 @@ const Index = () => {
 
           <div className="animate-fade-up delay-200">
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Stay updated, share stories, and discover what's happening around you.
-              Join a community that brings neighbors together.
+              Stay updated, share stories, and discover what's happening around
+              you. Join a community that brings neighbors together.
             </p>
           </div>
 
           <div className="animate-fade-up delay-300">
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
               <Button className="btn-hero px-8 py-6 text-lg cursor-glow">
-                <Link to="/signup?type=user" className="flex items-center gap-2">
+                <Link
+                  to="/signup?type=user"
+                  className="flex items-center gap-2"
+                >
                   Join as a Neighbor
                   <ArrowRight className="w-5 h-5" />
                 </Link>
@@ -176,15 +197,18 @@ const Index = () => {
               <span className="text-gradient">Connect</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover powerful features designed to bring your neighborhood together
+              Discover powerful features designed to bring your neighborhood
+              together
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card 
-                key={index} 
-                className={`glass card-hover animate-fade-up cursor-glow delay-${(index + 1) * 100}`}
+              <Card
+                key={index}
+                className={`glass card-hover animate-fade-up cursor-glow delay-${
+                  (index + 1) * 100
+                }`}
               >
                 <CardHeader>
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -218,19 +242,25 @@ const Index = () => {
           <div className="relative">
             {/* Timeline Line */}
             <div className="hidden lg:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20"></div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
               {steps.map((step, index) => {
-                const animationClass = index === 0 ? 'animate-slide-in-left' : 
-                                     index === 1 ? 'animate-fade-up' : 
-                                     'animate-slide-in-right';
-                const delayClass = index === 0 ? 'delay-200' : 
-                                  index === 1 ? 'delay-400' : 
-                                  'delay-600';
-                
+                const animationClass =
+                  index === 0
+                    ? "animate-slide-in-left"
+                    : index === 1
+                    ? "animate-fade-up"
+                    : "animate-slide-in-right";
+                const delayClass =
+                  index === 0
+                    ? "delay-200"
+                    : index === 1
+                    ? "delay-400"
+                    : "delay-600";
+
                 return (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`text-center ${animationClass} ${delayClass}`}
                   >
                     <div className="relative mb-6">
@@ -238,7 +268,9 @@ const Index = () => {
                         {step.number}
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 text-foreground">{step.title}</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-foreground">
+                      {step.title}
+                    </h3>
                     <p className="text-muted-foreground leading-relaxed">
                       {step.description}
                     </p>
@@ -267,39 +299,49 @@ const Index = () => {
               {
                 author: "Maria Santos",
                 time: "2 hours ago",
-                content: "Just organized a successful block party! Thanks to everyone who came out. Next one is planned for next month 🎉",
+                content:
+                  "Just organized a successful block party! Thanks to everyone who came out. Next one is planned for next month 🎉",
                 likes: 24,
-                comments: 8
+                comments: 8,
               },
               {
                 author: "David Kim",
-                time: "5 hours ago", 
-                content: "Lost cat found! Thanks to this amazing community for helping reunite Whiskers with his family ❤️",
+                time: "5 hours ago",
+                content:
+                  "Lost cat found! Thanks to this amazing community for helping reunite Whiskers with his family ❤️",
                 likes: 45,
-                comments: 12
+                comments: 12,
               },
               {
                 author: "Jennifer Lopez",
                 time: "1 day ago",
-                content: "New coffee shop opening on Main Street next week! They're offering 20% off for neighborhood residents 🍵",
+                content:
+                  "New coffee shop opening on Main Street next week! They're offering 20% off for neighborhood residents 🍵",
                 likes: 18,
-                comments: 6
-              }
+                comments: 6,
+              },
             ].map((post, index) => (
-              <Card 
-                key={index} 
-                className={`glass card-hover animate-fade-up cursor-glow delay-${(index + 1) * 100}`}
+              <Card
+                key={index}
+                className={`glass card-hover animate-fade-up cursor-glow delay-${
+                  (index + 1) * 100
+                }`}
               >
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
                       <span className="text-sm font-semibold text-primary">
-                        {post.author.split(' ').map(n => n[0]).join('')}
+                        {post.author
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </span>
                     </div>
                     <div>
                       <p className="font-semibold text-sm">{post.author}</p>
-                      <p className="text-xs text-muted-foreground">{post.time}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {post.time}
+                      </p>
                     </div>
                   </div>
                 </CardHeader>
@@ -337,8 +379,8 @@ const Index = () => {
           <div className="overflow-hidden">
             <div className="flex gap-6 animate-scroll-x">
               {[...testimonials, ...testimonials].map((testimonial, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className="glass card-hover min-w-[350px] cursor-glow"
                 >
                   <CardHeader>
@@ -350,12 +392,17 @@ const Index = () => {
                       </div>
                       <div>
                         <p className="font-semibold">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {testimonial.role}
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-1">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-primary text-primary"
+                        />
                       ))}
                     </div>
                   </CardHeader>
@@ -385,15 +432,16 @@ const Index = () => {
               Ready to <span className="text-gradient">Connect</span>?
             </h2>
           </div>
-          
+
           <div className="animate-fade-up delay-200">
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join thousands of neighbors who are already building stronger communities
+              Join thousands of neighbors who are already building stronger
+              communities
             </p>
           </div>
 
           <div className="animate-fade-up delay-300">
-            <Button className="btn-hero px-12 py-6 text-xl cursor-glow">
+            <Button className="btn-hero px-12 py-6 text-md text-nowrap md:text-xl cursor-glow">
               <Link to="/signup" className="flex items-center gap-2">
                 Get Started Today
                 <ArrowRight className="w-6 h-6" />
