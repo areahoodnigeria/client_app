@@ -4,6 +4,9 @@ import Signup from "./pages/Signup";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import Notifications from "./pages/Notifications";
 import Verification from "./pages/Verification";
 import Features from "./pages/Features";
 import About from "./pages/About";
@@ -15,6 +18,7 @@ import Guidelines from "./pages/Guidelines";
 import Safety from "./pages/Safety";
 import Careers from "./pages/Careers";
 import NotFound from "./pages/NotFound";
+import Loader from "./components/Loader";
 // import Layout from "./components/Layout";
 
 function App() {
@@ -27,6 +31,9 @@ function App() {
         <Route path="/verification" element={<Verification />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/features" element={<Features />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
@@ -36,6 +43,7 @@ function App() {
         <Route path="/guidelines" element={<Guidelines />} />
         <Route path="/safety" element={<Safety />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/loading" element={<Loader />} />
         {/* </Route> */}
         <Route path="*" element={<NotFound />} />
       </Routes>

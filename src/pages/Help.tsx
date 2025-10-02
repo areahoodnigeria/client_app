@@ -1,7 +1,17 @@
+import { useEffect } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 
 const Help = () => {
+  useEffect(() => {
+    // Add entrance animations on mount
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('animate-fade-up');
+      }, index * 100);
+    });
+  }, []);
   const helpCategories = [
     {
       title: "Getting Started",
@@ -73,30 +83,39 @@ const Help = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow" style={{animationDelay: '4s'}}></div>
+      </div>
+      
       <Navigation />
 
-      <main className="pt-20">
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/20">
+        <section className="py-20 relative">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Help <span className="text-primary">Center</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Find answers to your questions and get the support you need
-            </p>
+            <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-12 max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Help <span className="text-purple-300">Center</span>
+              </h1>
+              <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                Find answers to your questions and get the support you need
+              </p>
+            </div>
           </div>
         </section>
 
         {/* Quick Actions */}
         <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-16 animate-on-scroll">
+              <h2 className="text-3xl font-bold text-white mb-4">
                 Quick Actions
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-gray-300">
                 Get help with common tasks
               </p>
             </div>
@@ -105,16 +124,16 @@ const Help = () => {
               {quickActions.map((action, index) => (
                 <div
                   key={index}
-                  className="bg-card border border-border rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105"
                 >
                   <div className="text-4xl mb-4">{action.icon}</div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                  <h3 className="text-lg font-semibold text-white mb-3">
                     {action.title}
                   </h3>
-                  <p className="text-muted-foreground mb-4 text-sm">
+                  <p className="text-gray-300 mb-4 text-sm">
                     {action.description}
                   </p>
-                  <button className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md font-medium hover:bg-primary/90 transition-colors">
+                  <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-md font-medium hover:bg-purple-700 transition-colors">
                     {action.action}
                   </button>
                 </div>
@@ -124,13 +143,13 @@ const Help = () => {
         </section>
 
         {/* Help Categories */}
-        <section className="py-20 bg-secondary/30">
+        <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-16 animate-on-scroll">
+              <h2 className="text-3xl font-bold text-white mb-4">
                 Help Topics
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-gray-300">
                 Browse by category to find what you need
               </p>
             </div>
@@ -139,11 +158,11 @@ const Help = () => {
               {helpCategories.map((category, index) => (
                 <div
                   key={index}
-                  className="bg-card border border-border rounded-xl p-6"
+                  className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6"
                 >
                   <div className="flex items-center mb-4">
                     <div className="text-3xl mr-4">{category.icon}</div>
-                    <h3 className="text-xl font-semibold text-foreground">
+                    <h3 className="text-xl font-semibold text-white">
                       {category.title}
                     </h3>
                   </div>
@@ -151,9 +170,9 @@ const Help = () => {
                     {category.topics.map((topic, idx) => (
                       <li
                         key={idx}
-                        className="flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        className="flex items-center text-gray-300 hover:text-white transition-colors cursor-pointer"
                       >
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
+                        <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mr-3"></div>
                         {topic}
                       </li>
                     ))}
@@ -167,53 +186,53 @@ const Help = () => {
         {/* Popular Articles */}
         <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-16 animate-on-scroll">
+              <h2 className="text-3xl font-bold text-white mb-4">
                 Popular Articles
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-gray-300">
                 Most frequently asked questions
               </p>
             </div>
 
             <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">
                   How do I verify my email address?
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   After signing up, check your email for a verification code.
                   Enter the 6-digit code on the verification page to activate
                   your account.
                 </p>
               </div>
 
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">
                   Can I change my neighborhood?
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Yes! Go to your profile settings and update your address.
                   We'll automatically connect you with your new neighborhood.
                 </p>
               </div>
 
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">
                   How do I create a neighborhood event?
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Navigate to the Events section, click "Create Event", fill in
                   the details, and publish. Your neighbors will be notified
                   automatically.
                 </p>
               </div>
 
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">
                   Is my personal information safe?
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Absolutely. We use bank-level encryption and never share your
                   data. You control what information is visible to your
                   neighbors.
@@ -224,23 +243,25 @@ const Help = () => {
         </section>
 
         {/* Contact Support */}
-        <section className="py-20 bg-secondary/30">
+        <section className="py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-foreground mb-6">
-                Still Need Help?
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Can't find what you're looking for? Our support team is here to
-                help you.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-primary text-primary-foreground py-3 px-6 rounded-md font-medium hover:bg-primary/90 transition-colors">
-                  Contact Support
-                </button>
-                <button className="border border-border text-foreground py-3 px-6 rounded-md font-medium hover:bg-secondary transition-colors">
-                  Live Chat
-                </button>
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-8">
+                <h2 className="text-3xl font-bold text-white mb-6">
+                  Still Need Help?
+                </h2>
+                <p className="text-gray-300 mb-8">
+                  Can't find what you're looking for? Our support team is here to
+                  help you.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 transition-colors">
+                    Contact Support
+                  </button>
+                  <button className="border border-white/30 text-white py-3 px-6 rounded-md font-medium hover:bg-white/10 transition-colors">
+                    Live Chat
+                  </button>
+                </div>
               </div>
             </div>
           </div>

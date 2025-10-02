@@ -1,24 +1,54 @@
+import { useEffect } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 
 const Terms = () => {
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-fade-in-up");
+        }
+      });
+    }, observerOptions);
+
+    const animateElements = document.querySelectorAll(".animate-on-scroll");
+    animateElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-teal-900 to-blue-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
       <Navigation />
 
-      <main className="pt-20">
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/20">
+        <section className="py-20">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Terms of <span className="text-primary">Service</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Please read these terms carefully before using AreaHood.
-            </p>
-            <p className="text-sm text-muted-foreground mt-4">
-              Last updated: December 2024
-            </p>
+            <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Terms of <span className="text-green-400">Service</span>
+              </h1>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Please read these terms carefully before using AreaHood.
+              </p>
+              <p className="text-sm text-gray-400 mt-4">
+                Last updated: December 2024
+              </p>
+            </div>
           </div>
         </section>
 
@@ -26,12 +56,12 @@ const Terms = () => {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-card border border-border rounded-xl p-8 space-y-8">
+              <div className="animate-on-scroll backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-8 space-y-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Acceptance of Terms
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       By accessing and using AreaHood, you accept and agree to
                       be bound by the terms and provision of this agreement.
@@ -44,10 +74,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Use License
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       Permission is granted to temporarily use AreaHood for
                       personal, non-commercial transitory viewing only. This is
@@ -64,10 +94,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     User Responsibilities
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>As a user of AreaHood, you agree to:</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
                       <li>Provide accurate and truthful information</li>
@@ -85,10 +115,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Prohibited Uses
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>You may not use AreaHood:</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
                       <li>
@@ -113,10 +143,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Content Policy
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       All content posted on AreaHood must be appropriate for a
                       community platform. We reserve the right to remove content
@@ -134,10 +164,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Account Termination
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       We may terminate or suspend your account immediately,
                       without prior notice or liability, for any reason
@@ -153,10 +183,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Limitation of Liability
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       In no event shall AreaHood, nor its directors, employees,
                       partners, agents, suppliers, or affiliates, be liable for
@@ -169,10 +199,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Changes to Terms
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       We reserve the right, at our sole discretion, to modify or
                       replace these Terms at any time. If a revision is
@@ -183,10 +213,10 @@ const Terms = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
                     Contact Information
                   </h2>
-                  <div className="space-y-4 text-muted-foreground">
+                  <div className="space-y-4 text-gray-300">
                     <p>
                       If you have any questions about these Terms of Service,
                       please contact us at:

@@ -1,7 +1,18 @@
+import { useEffect } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 
 const Features = () => {
+  useEffect(() => {
+    // Add entrance animations on mount
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('animate-fade-up');
+      }, index * 100);
+    });
+  }, []);
+
   const features = [
     {
       title: "Local Events",
@@ -78,49 +89,61 @@ const Features = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-bounce-slow" style={{animationDelay: '4s'}}></div>
+      </div>
+      
       <Navigation />
 
-      <main className="pt-20">
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              AreaHood <span className="text-primary">Features</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Everything you need to build stronger, more connected communities
-            </p>
+        <section className="py-20 relative">
+          <div className="container mx-auto px-6">
+            <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl animate-on-scroll">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 text-center animate-fade-up">
+                Powerful Features for Your Neighborhood
+              </h1>
+              <p className="text-xl text-gray-200 text-center max-w-3xl mx-auto animate-fade-up" style={{animationDelay: '0.2s'}}>
+                Discover all the tools and features that make AreaHood the perfect platform 
+                for building stronger, more connected communities.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* Features Grid */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
+        <section className="py-16">
+          <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-on-scroll group"
+                  style={{animationDelay: `${index * 0.1}s`}}
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground mb-4 leading-relaxed">
-                    {feature.description}
-                  </p>
-                  <ul className="space-y-2">
-                    {feature.benefits.map((benefit, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-center text-sm text-muted-foreground"
-                      >
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+                  <p className="text-gray-300 mb-4 leading-relaxed">{feature.description}</p>
+                  
+                  {feature.benefits && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-purple-400 mb-2">Key Benefits:</h4>
+                      <ul className="space-y-1">
+                        {feature.benefits.map((benefit, benefitIndex) => (
+                          <li key={benefitIndex} className="text-sm text-gray-300 flex items-center">
+                            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full mr-2"></span>
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -128,51 +151,28 @@ const Features = () => {
         </section>
 
         {/* Stats Section */}
-        <section className="py-20 bg-secondary/30">
-          <div className="container mx-auto px-4">
-            <div className="bg-card border border-border rounded-2xl p-8 md:p-12">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-foreground mb-4">
-                  Join Thousands of Connected Communities
-                </h2>
-                <p className="text-muted-foreground">
-                  See how AreaHood is transforming neighborhoods across the
-                  country
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                    500+
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Active Communities
-                  </div>
+        <section className="py-16">
+          <div className="container mx-auto px-6">
+            <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl animate-on-scroll">
+              <h2 className="text-3xl font-bold text-white mb-8 text-center animate-fade-up">
+                Join Thousands of Connected Communities
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="text-center animate-on-scroll" style={{animationDelay: '0.1s'}}>
+                  <div className="text-4xl font-bold text-purple-400 mb-2">50K+</div>
+                  <div className="text-gray-300">Active Users</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                    10K+
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Neighbors Connected
-                  </div>
+                <div className="text-center animate-on-scroll" style={{animationDelay: '0.2s'}}>
+                  <div className="text-4xl font-bold text-blue-400 mb-2">1,200+</div>
+                  <div className="text-gray-300">Neighborhoods</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                    2K+
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Events Hosted
-                  </div>
+                <div className="text-center animate-on-scroll" style={{animationDelay: '0.3s'}}>
+                  <div className="text-4xl font-bold text-pink-400 mb-2">25K+</div>
+                  <div className="text-gray-300">Events Created</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                    50+
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Cities Covered
-                  </div>
+                <div className="text-center animate-on-scroll" style={{animationDelay: '0.4s'}}>
+                  <div className="text-4xl font-bold text-green-400 mb-2">98%</div>
+                  <div className="text-gray-300">User Satisfaction</div>
                 </div>
               </div>
             </div>

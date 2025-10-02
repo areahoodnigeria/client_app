@@ -1,13 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { api_url } from "../utils/constants";
+import { useNavigate, Link } from "react-router-dom";
+import { Home, Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 
 const Verification = () => {
+  const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [countdown, setCountdown] = useState(0);
+  const [accountType, setAccountType] = useState("user");
+  const [email, setEmail] = useState("");
+
+  // Add entrance animations on mount
+  useEffect(() => {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('animate-fade-up');
+      }, index * 100);
+    });
+  }, []);
+
+  // Get email and account type from localStorage on component mount
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("verificationEmail");
+    const storedAccountType = localStorage.getItem("accountType");
+
+    // Redirect to register if no email is found
+    if (!storedEmail) {
+      navigate("/signup");
+      return;
+    }
+
+    if (storedEmail) setEmail(storedEmail);
+    if (storedAccountType) setAccountType(storedAccountType);
+
+    // Start countdown timer since OTP was already sent during registration
+    setCountdown(6);
+  }, [navigate]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
 
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -26,23 +77,28 @@ const Verification = () => {
     setMessage("");
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${api_url}/auth/verify-otp`,
-        { otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Send OTP verification request with account_type
+      const response = await axios.post(`${api_url}/auth/verify-otp`, {
+        otp,
+        account_type: accountType,
+      });
 
-      setMessage("Email verified successfully! Welcome to AreaHood!");
-      // Redirect to dashboard or login page
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 2000);
+      // Check if verification was successful
+      if (response.data.status === "success") {
+        setMessage("Account verified successfully. You can now log in.");
+        setMessageType("success");
+
+        // Clear verification data from localStorage
+        localStorage.removeItem("verificationEmail");
+        localStorage.removeItem("accountType");
+
+        // Redirect to login page after successful verification
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
     } catch (error) {
+      setMessageType("error");
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
           setMessage("Invalid OTP. Please check and try again.");
@@ -64,19 +120,17 @@ const Verification = () => {
     setMessage("");
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${api_url}/auth/resend-otp`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Get email from localStorage if available
+      const email = localStorage.getItem("verificationEmail");
+
+      await axios.patch(`${api_url}/auth/send-otp`, {
+        email,
+        account_type: accountType,
+      });
 
       setMessage("OTP sent successfully! Please check your email.");
-      setCountdown(60); // Start 60-second countdown
+      setMessageType("success");
+      setCountdown(6); // Start 60-second countdown
 
       // Start countdown timer
       const timer = setInterval(() => {
@@ -89,6 +143,7 @@ const Verification = () => {
         });
       }, 1000);
     } catch (error) {
+      setMessageType("error");
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 429) {
           setMessage(
@@ -106,94 +161,126 @@ const Verification = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-sm">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              Verify Your Email
-            </h2>
-            <p className="text-muted-foreground">
-              We've sent a 6-digit verification code to your email address
-            </p>
-          </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
 
-          {/* Message Display */}
-          {message && (
-            <div
-              className={`mb-4 p-3 rounded-md text-sm ${
-                message.includes("successfully") || message.includes("sent")
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              {message}
+      {/* Navigation */}
+      <nav className="relative z-10 p-6">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2 text-white hover:text-purple-300 transition-colors">
+            <Home className="h-6 w-6" />
+            <span className="font-semibold">AreaHood</span>
+          </Link>
+          <Link to="/signup" className="flex items-center space-x-2 text-white hover:text-purple-300 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Signup</span>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-6">
+        <div className="w-full max-w-md">
+          {/* Verification Card */}
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl animate-on-scroll">
+            {/* Header */}
+            <div className="text-center mb-8 animate-on-scroll" style={{animationDelay: '0.1s'}}>
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="h-8 w-8 text-purple-400" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Verify Your Email</h1>
+              <p className="text-gray-300">
+                We've sent a verification code to
+              </p>
+              <p className="text-purple-400 font-semibold">{email}</p>
             </div>
-          )}
 
-          {/* OTP Form */}
-          <form onSubmit={handleVerify} className="space-y-6">
-            <div>
-              <label
-                htmlFor="otp"
-                className="block text-sm font-medium text-foreground mb-2"
-              >
-                Enter Verification Code
+            {/* Message Display */}
+            {message && (
+              <div className={`mb-6 p-4 rounded-xl flex items-center space-x-3 animate-on-scroll ${
+                messageType === "success" 
+                  ? "bg-green-500/20 border border-green-500/30 text-green-300" 
+                  : "bg-red-500/20 border border-red-500/30 text-red-300"
+              }`} style={{animationDelay: '0.2s'}}>
+                {messageType === "success" ? (
+                  <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                )}
+                <span>{message}</span>
+              </div>
+            )}
+
+            {/* OTP Input */}
+            <div className="mb-6 animate-on-scroll" style={{animationDelay: '0.3s'}}>
+              <label htmlFor="otp" className="block text-sm font-medium text-gray-300 mb-2">
+                Verification Code
               </label>
               <input
                 type="text"
                 id="otp"
                 value={otp}
                 onChange={handleOtpChange}
-                placeholder="123456"
-                className="w-full px-4 py-3 text-center text-2xl font-mono border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground tracking-widest"
+                placeholder="Enter 6-digit code"
                 maxLength={6}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-center text-lg tracking-widest"
               />
             </div>
 
             {/* Verify Button */}
             <button
-              type="submit"
+              onClick={(e) => {
+                e.preventDefault();
+                handleVerify(e);
+              }}
               disabled={isLoading || otp.length !== 6}
-              className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed animate-on-scroll"
+              style={{animationDelay: '0.4s'}}
             >
-              {isLoading ? "Verifying..." : "Verify Email"}
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Verifying...</span>
+                </div>
+              ) : (
+                "Verify Email"
+              )}
             </button>
-          </form>
 
-          {/* Resend Section */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground mb-3">
-              Didn't receive the code?
-            </p>
-            <button
-              onClick={handleResendOtp}
-              disabled={isResending || countdown > 0}
-              className="text-primary hover:text-primary/80 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isResending
-                ? "Sending..."
-                : countdown > 0
-                ? `Resend in ${countdown}s`
-                : "Resend OTP"}
-            </button>
-          </div>
+            {/* Resend Section */}
+            <div className="mt-6 text-center animate-on-scroll" style={{animationDelay: '0.5s'}}>
+              {countdown > 0 ? (
+                <p className="text-gray-400">
+                  Resend code in <span className="text-purple-400 font-semibold">{countdown}s</span>
+                </p>
+              ) : (
+                <button
+                  onClick={handleResendOtp}
+                  disabled={isResending}
+                  className="text-purple-400 hover:text-purple-300 font-medium transition-colors disabled:opacity-50"
+                >
+                  {isResending ? "Sending..." : "Resend verification code"}
+                </button>
+              )}
+            </div>
 
-          {/* Back to Signup */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Wrong email?{" "}
-              <button
-                onClick={() => (window.location.href = "/signup")}
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                Go back to signup
-              </button>
-            </p>
+            {/* Help Text */}
+            <div className="mt-8 text-center animate-on-scroll" style={{animationDelay: '0.6s'}}>
+              <p className="text-gray-400 text-sm">
+                Didn't receive the code? Check your spam folder or{" "}
+                <Link to="/signup" className="text-purple-400 hover:text-purple-300 transition-colors">
+                  try a different email
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
