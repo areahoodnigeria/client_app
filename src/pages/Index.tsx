@@ -441,7 +441,7 @@ const Index = () => {
           </div>
 
           <div className="animate-fade-up delay-300">
-            <Button className="btn-hero px-12 py-6 text-md text-nowrap md:text-xl cursor-glow">
+            <Button className="btn-hero px-12 py-6 text-md text-nowrap md:text-lg cursor-glow">
               <Link to="/signup" className="flex items-center gap-2">
                 Get Started Today
                 <ArrowRight className="w-6 h-6" />

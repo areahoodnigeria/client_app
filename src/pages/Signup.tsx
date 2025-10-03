@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Home, Mail, Lock, User, Users, Building, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Home,
+  Mail,
+  Lock,
+  User,
+  Users,
+  Building,
+  AlertCircle,
+} from "lucide-react";
 import useAuthStore from "../store/authStore";
 import Loader from "../components/Loader";
 import { AxiosError } from "axios";
@@ -111,7 +121,9 @@ const Signup = () => {
 
       // Check if registration was successful
       if (response.status === "success") {
-        setMessage("Registration successful! Please verify your email with the OTP sent.");
+        setMessage(
+          "Registration successful! Please verify your email with the OTP sent."
+        );
         setMessageType("success");
 
         // Reset form
@@ -136,13 +148,17 @@ const Signup = () => {
           errorMessage.includes("already exists") ||
           errorMessage.includes("email already registered")
         ) {
-          setMessage("An account with this email already exists. Please log in or use a different email.");
+          setMessage(
+            "An account with this email already exists. Please log in or use a different email."
+          );
           setMessageType("error");
         } else if (
           errorMessage.includes("network") ||
           errorMessage.includes("failed to fetch")
         ) {
-          setMessage("Network error. Please check your connection and try again.");
+          setMessage(
+            "Network error. Please check your connection and try again."
+          );
           setMessageType("error");
         } else if (
           errorMessage.includes("server") ||
@@ -164,7 +180,7 @@ const Signup = () => {
   const handleSocialSignup = async (provider: string) => {
     setMessage(`${provider} signup coming soon!`);
     setMessageType("error");
-    
+
     // Clear message after 3 seconds
     setTimeout(() => {
       setMessage("");
@@ -183,9 +199,9 @@ const Signup = () => {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23000000%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
 
       {/* Logo at top-left */}
-      <div className="absolute top-6 left-6 z-10">
-        <Link 
-          to="/" 
+      <Link to="/" className="absolute top-6 left-6 z-50">
+        <Link
+          to="/"
           className="flex items-center space-x-2 group transition-all duration-300 hover:scale-105"
         >
           <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
@@ -193,7 +209,7 @@ const Signup = () => {
           </div>
           <span className="text-xl font-bold text-gradient">AreaHood</span>
         </Link>
-      </div>
+      </Link>
 
       {/* Main content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -273,11 +289,13 @@ const Signup = () => {
 
             {/* Message display */}
             {message && (
-              <div className={`mb-6 p-4 rounded-lg flex items-center space-x-2 animate-fade-in ${
-                messageType === "success" 
-                  ? "bg-green-50 text-green-700 border border-green-200" 
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}>
+              <div
+                className={`mb-6 p-4 rounded-lg flex items-center space-x-2 animate-fade-in ${
+                  messageType === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">{message}</span>
               </div>
@@ -305,12 +323,16 @@ const Signup = () => {
                     onChange={handleInputChange}
                     placeholder="John"
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
-                      errors.firstName ? "border-red-500 ring-2 ring-red-200" : "border-border"
+                      errors.firstName
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
                     }`}
                   />
                 </div>
                 {errors.firstName && (
-                  <p className="mt-2 text-sm text-red-600 animate-fade-in">{errors.firstName}</p>
+                  <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
 
@@ -334,12 +356,16 @@ const Signup = () => {
                     onChange={handleInputChange}
                     placeholder="Doe"
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
-                      errors.lastName ? "border-red-500 ring-2 ring-red-200" : "border-border"
+                      errors.lastName
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
                     }`}
                   />
                 </div>
                 {errors.lastName && (
-                  <p className="mt-2 text-sm text-red-600 animate-fade-in">{errors.lastName}</p>
+                  <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                    {errors.lastName}
+                  </p>
                 )}
               </div>
 
@@ -363,12 +389,16 @@ const Signup = () => {
                     onChange={handleInputChange}
                     placeholder="john@example.com"
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
-                      errors.email ? "border-red-500 ring-2 ring-red-200" : "border-border"
+                      errors.email
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
                     }`}
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-2 text-sm text-red-600 animate-fade-in">{errors.email}</p>
+                  <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
@@ -392,7 +422,9 @@ const Signup = () => {
                     onChange={handleInputChange}
                     placeholder="Create a strong password"
                     className={`w-full pl-10 pr-12 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
-                      errors.password ? "border-red-500 ring-2 ring-red-200" : "border-border"
+                      errors.password
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
                     }`}
                   />
                   <button
@@ -408,7 +440,9 @@ const Signup = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-2 text-sm text-red-600 animate-fade-in">{errors.password}</p>
+                  <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                    {errors.password}
+                  </p>
                 )}
               </div>
 

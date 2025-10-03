@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { api_url as API_BASE_URL } from "../utils/constants";
 
 // Define the shape of our user object
@@ -35,6 +35,7 @@ interface AuthState {
     referredBy?: string,
     accountType?: string
   ) => Promise<SignupResponse>;
+  fetchUser: () => Promise<void>;
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
@@ -151,6 +152,24 @@ const useAuthStore = create<AuthState>()(
         }
       },
 
+      // Fetch current user using protected endpoint
+      fetchUser: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await api.get("/auth/me");
+          set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+        } catch (err) {
+          let errorMessage = "An unknown error occurred";
+          if (axios.isAxiosError(err)) {
+            errorMessage = err.response?.data?.message || "Failed to fetch user";
+          } else if (err instanceof Error) {
+            errorMessage = err.message;
+          }
+          set({ error: errorMessage, isLoading: false });
+          // If unauthorized, interceptor will handle logout
+        }
+      },
+
       // Logout function
       logout: () => {
         set({
@@ -170,5 +189,46 @@ const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Attach axios interceptors for token and error handling
+api.interceptors.request.use((config) => {
+  try {
+    const { token } = useAuthStore.getState();
+    if (token) {
+      if (config.headers) {
+        const headers: any = config.headers as any;
+        if (typeof headers.set === "function") {
+          headers.set("Authorization", `Bearer ${token}`);
+        } else {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      } else {
+        // Initialize headers object without replacing AxiosHeaders instance
+        config.headers = { Authorization: `Bearer ${token}` } as any;
+      }
+    }
+  } catch (_) {
+    // No-op
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    const status = error.response?.status;
+    if (status === 401 || status === 403) {
+      // Force logout on expired/invalid token
+      try {
+        useAuthStore.getState().logout();
+      } catch (_) {
+        // No-op
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export { api };
 
 export default useAuthStore;

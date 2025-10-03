@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/Card";
 
 const Features = () => {
   useEffect(() => {
@@ -93,13 +94,12 @@ const Features = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Animated background elements */}
       <Navigation />
       <main className="pt-20 relative z-10">
         {/* Hero Section */}
-        <section className=" relative">
+        <section className="relative">
           <div className="container mx-auto px-6">
-            <div className="backdrop-blur-md  p-8 md:p-12 animate-on-scroll">
+            <div className="backdrop-blur-md p-8 md:p-12 animate-on-scroll">
               <h1 className="leading-tight text-4xl md:text-5xl font-bold mb-6 text-center animate-fade-up">
                 Powerful Features for Your{" "}
                 <span className="text-gradient">Neighborhood</span>
@@ -121,40 +121,35 @@ const Features = () => {
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <div
+                <Card
                   key={index}
-                  className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-on-scroll group"
+                  className="animate-on-scroll transition-transform hover:scale-[1.02]"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="text-4xl mb-4 group-hover:scale-104 transition-transform duration-300">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold  mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground mb-4 leading-relaxed">
-                    {feature.description}
-                  </p>
-
+                  <CardHeader>
+                    <div className="text-4xl mb-4">
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="text-xl">{feature.title}</CardTitle>
+                    <CardDescription>{feature.description}</CardDescription>
+                  </CardHeader>
                   {feature.benefits && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium mb-2">
-                        Key Benefits:
-                      </h4>
+                    <CardContent className="space-y-2">
+                      <h4 className="text-sm font-medium">Key Benefits:</h4>
                       <ul className="space-y-1">
                         {feature.benefits.map((benefit, benefitIndex) => (
                           <li
                             key={benefitIndex}
                             className="text-sm text-muted-foreground flex items-center"
                           >
-                            <span className="w-1.5 h-1.5 bg-black rounded-full mr-2"></span>
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
                             {benefit}
                           </li>
                         ))}
                       </ul>
-                    </div>
+                    </CardContent>
                   )}
-                </div>
+                </Card>
               ))}
             </div>
           </div>
