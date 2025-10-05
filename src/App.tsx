@@ -3,10 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import Notifications from "./pages/Notifications";
 import Verification from "./pages/Verification";
 import Features from "./pages/Features";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -23,7 +19,7 @@ import NotFound from "./pages/NotFound";
 import Loader from "./components/Loader";
 import { useEffect } from "react";
 import useAuthStore from "./store/authStore";
-// import Layout from "./components/Layout";
+import DashboardRouter from "./pages/DashboardRouter.tsx";
 
 function App() {
   const { token, user, fetchUser } = useAuthStore();
@@ -42,12 +38,14 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/login" element={<Login />} />
-        {/* Protected Routes */}
+
+        <Route element={<ProtectedRoute />}>
+          {/* Single dashboard entry */}
+          <Route path="/dashboard/*" element={<DashboardRouter />} />
+        </Route>
+
+        {/* Common */}
         <Route element={<ProtectedRoute redirectPath="/login" />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/notifications" element={<Notifications />} />
           <Route path="/logout" element={<Logout />} />
         </Route>
         <Route path="/features" element={<Features />} />

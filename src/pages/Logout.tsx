@@ -15,7 +15,7 @@ const Logout = () => {
 
   return (
     <div className="min-h-screen grid place-items-center bg-background">
-      <div className="text-center">
+      <div className="text-center ">
         <div className="animate-spin h-8 w-8 rounded-full border-2 border-primary border-t-transparent mx-auto mb-4" />
         <p className="text-muted-foreground">Signing you out…</p>
       </div>

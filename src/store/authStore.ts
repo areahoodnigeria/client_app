@@ -8,6 +8,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  user_type?: string; // neighbour or organization
 }
 
 // Response interface for signup
@@ -25,6 +26,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  userType: "neighbour" | "organization" | null;
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
@@ -33,12 +35,14 @@ interface AuthState {
     password: string,
     name: string,
     referredBy?: string,
-    accountType?: string
+    accountType?: string,
+    businessName?: string
   ) => Promise<SignupResponse>;
   fetchUser: () => Promise<void>;
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
+  getUserType: () => "neighbour" | "organization" | null;
 }
 
 // Create axios instance with default config
@@ -52,12 +56,13 @@ const api = axios.create({
 // Create the auth store
 const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      userType: null,
 
       // Set loading state
       setLoading: (isLoading: boolean) => set({ isLoading }),
@@ -72,11 +77,27 @@ const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post("/auth/login", { email, password });
 
+          // Derive user type from response (support various field names)
+          const rawType =
+            response.data.data?.user?.user_type ||
+            response.data.data?.user?.account_type ||
+            response.data.user_type ||
+            response.data.account_type ||
+            "user";
+
+          console.log(response);
+
+          const normalizedType =
+            String(rawType).toLowerCase() === "organization"
+              ? "organization"
+              : "neighbour";
+
           set({
             user: response.data.user,
             token: response.data.token,
             isAuthenticated: true,
             isLoading: false,
+            userType: normalizedType,
           });
         } catch (err) {
           let errorMessage = "An unknown error occurred";
@@ -98,7 +119,8 @@ const useAuthStore = create<AuthState>()(
         password: string,
         name: string,
         referredBy?: string,
-        accountType: string = "user"
+        accountType: string = "user",
+        businessName?: string
       ) => {
         set({ isLoading: true, error: null });
 
@@ -110,7 +132,7 @@ const useAuthStore = create<AuthState>()(
             nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
           // Prepare request body according to API requirements
-          const requestBody = {
+          const requestBody: Record<string, any> = {
             first_name: firstName,
             last_name: lastName,
             password,
@@ -123,6 +145,11 @@ const useAuthStore = create<AuthState>()(
             Object.assign(requestBody, { referred_by: referredBy });
           }
 
+          // Include business_name for organizations
+          if (accountType === "organization" && businessName) {
+            requestBody["business_name"] = businessName;
+          }
+
           const response = await api.post("/auth/register", requestBody);
 
           // For successful registration with OTP flow
@@ -132,6 +159,8 @@ const useAuthStore = create<AuthState>()(
               isLoading: false,
               // Store email temporarily for verification
               user: { id: "", email, name: `${firstName} ${lastName}` } as User,
+              userType:
+                accountType === "organization" ? "organization" : "neighbour",
             });
           }
           localStorage.setItem("verificationEmail", email);
@@ -157,11 +186,28 @@ const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await api.get("/auth/me");
-          set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+          const rawType =
+            response.data.user?.user_type ||
+            response.data.user?.account_type ||
+            response.data.user_type ||
+            response.data.account_type ||
+            null;
+          const normalizedType = rawType
+            ? String(rawType).toLowerCase() === "organization"
+              ? "organization"
+              : "neighbour"
+            : null;
+          set({
+            user: response.data.user,
+            isAuthenticated: true,
+            isLoading: false,
+            userType: normalizedType,
+          });
         } catch (err) {
           let errorMessage = "An unknown error occurred";
           if (axios.isAxiosError(err)) {
-            errorMessage = err.response?.data?.message || "Failed to fetch user";
+            errorMessage =
+              err.response?.data?.message || "Failed to fetch user";
           } else if (err instanceof Error) {
             errorMessage = err.message;
           }
@@ -176,8 +222,11 @@ const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
+          userType: null,
         });
       },
+
+      getUserType: () => get().userType,
     }),
     {
       name: "auth-storage", // name of the item in the storage
@@ -185,6 +234,7 @@ const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        userType: state.userType,
       }),
     }
   )

@@ -16,11 +16,11 @@ const Login = () => {
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   // Get authentication state and actions from Zustand store
-  const { login, isLoading, isAuthenticated } = useAuthStore();
+  const { login, isLoading, isAuthenticated, userType } = useAuthStore();
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userType) {
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);

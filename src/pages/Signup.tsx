@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
+import { getDashboardPath } from "../utils/subdomain";
 import Loader from "../components/Loader";
 import { AxiosError } from "axios";
 
@@ -24,20 +25,21 @@ const Signup = () => {
     email: "",
     password: "",
   });
+  const [businessName, setBusinessName] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   // Get authentication state and actions from Zustand store
-  const { signup, isLoading, isAuthenticated } = useAuthStore();
+  const { signup, isLoading, isAuthenticated, userType: authUserType } = useAuthStore();
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
+    if (isAuthenticated && authUserType) {
+      navigate(getDashboardPath(authUserType));
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUserType, navigate]);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -68,6 +70,15 @@ const Signup = () => {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
+    }
+
+    // Validate business name for organizations
+    if (userType === "organization") {
+      if (!businessName.trim()) {
+        newErrors.businessName = "Business name is required";
+      } else if (businessName.trim().length < 2) {
+        newErrors.businessName = "Business name must be at least 2 characters";
+      }
     }
 
     setErrors(newErrors);
@@ -116,7 +127,8 @@ const Signup = () => {
         formData.password,
         `${formData.firstName} ${formData.lastName}`,
         undefined, // referredBy (optional)
-        userType // account_type (user or organization)
+        userType, // account_type (user or organization)
+        userType === "organization" ? businessName : undefined
       );
 
       // Check if registration was successful
@@ -133,6 +145,7 @@ const Signup = () => {
           email: "",
           password: "",
         });
+        setBusinessName("");
 
         // Navigate to verification page after a short delay
         setTimeout(() => {
@@ -445,6 +458,40 @@ const Signup = () => {
                   </p>
                 )}
               </div>
+
+              {/* Business Name (Organization only) */}
+              {userType === "organization" && (
+                <div className="mb-6">
+                  <label
+                    htmlFor="businessName"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    Business Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Building className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <input
+                      id="businessName"
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      placeholder="Your organization or business name"
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
+                        errors.businessName
+                          ? "border-red-500 ring-2 ring-red-200"
+                          : "border-border"
+                      }`}
+                    />
+                  </div>
+                  {errors.businessName && (
+                    <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                      {errors.businessName}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Create Account Button */}
               <button
