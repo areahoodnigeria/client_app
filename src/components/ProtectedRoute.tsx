@@ -6,7 +6,10 @@ interface ProtectedRouteProps {
   allowedTypes?: ("neighbour" | "organization")[];
 }
 
-const ProtectedRoute = ({ redirectPath = "/login", allowedTypes }: ProtectedRouteProps) => {
+const ProtectedRoute = ({
+  redirectPath = "/login",
+  allowedTypes,
+}: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, userType } = useAuthStore();
 
   // Show loading state while checking authentication
@@ -22,8 +25,8 @@ const ProtectedRoute = ({ redirectPath = "/login", allowedTypes }: ProtectedRout
   // Restrict by user type when provided
   if (allowedTypes && userType && !allowedTypes.includes(userType)) {
     // Redirect to the correct dashboard based on current user type
-    const target = userType === "organization" ? "/org/dashboard" : "/neighbour/dashboard";
-    return <Navigate to={target} replace />;
+    // const target = userType === "organization" ? "/org/dashboard" : "/neighbour/dashboard";
+    return <Navigate to={"/dashboard"} replace />;
   }
 
   // Render the protected content
