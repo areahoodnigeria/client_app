@@ -3,12 +3,10 @@ import { motion } from "framer-motion";
 import {
   Home,
   User,
-  PencilLine,
   Users,
   CalendarDays,
   Bell,
   Settings,
-  LifeBuoy,
   Building2,
   Package,
   UserCircle2,
