@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Eye,
   EyeOff,
@@ -12,13 +12,16 @@ import {
   AlertCircle,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
-import { getDashboardPath } from "../utils/subdomain";
 import Loader from "../components/Loader";
 import { AxiosError } from "axios";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [userType, setUserType] = useState("user");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get("type");
+
+  const [userType, setUserType] = useState(type || "user");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -32,12 +35,17 @@ const Signup = () => {
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   // Get authentication state and actions from Zustand store
-  const { signup, isLoading, isAuthenticated, userType: authUserType } = useAuthStore();
+  const {
+    signup,
+    isLoading,
+    isAuthenticated,
+    userType: authUserType,
+  } = useAuthStore();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && authUserType) {
-      navigate(getDashboardPath(authUserType));
+      navigate("/dashboard");
     }
   }, [isAuthenticated, authUserType, navigate]);
 

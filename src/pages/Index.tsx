@@ -84,7 +84,7 @@ const steps = [
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
+    name: "Amara Ezekwesili",
     role: "Resident",
     content:
       "AreaHood has completely transformed how I connect with my neighbors. I've made so many new friends!",
@@ -92,7 +92,7 @@ const testimonials = [
     rating: 5,
   },
   {
-    name: "Mike Chen",
+    name: "Kolawole Adetola",
     role: "Local Business Owner",
     content:
       "As a small business owner, AreaHood has helped me reach more local customers than ever before.",
@@ -100,7 +100,7 @@ const testimonials = [
     rating: 5,
   },
   {
-    name: "Emily Rodriguez",
+    name: "Kudus Abdullahi",
     role: "Community Organizer",
     content:
       "The event planning features make organizing neighborhood gatherings so much easier.",
@@ -173,11 +173,11 @@ const Index = () => {
             <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-primary" />
-                <span>500+ Communities</span>
+                <span>50+ Communities</span>
               </div>
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-primary" />
-                <span>10K+ Active Members</span>
+                <span>500+ Active Members</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-primary" />
@@ -204,24 +204,26 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card
-                key={index}
-                className={`glass card-hover animate-fade-up cursor-glow delay-${
-                  (index + 1) * 100
-                }`}
-              >
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base leading-relaxed">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <Link key={index} to={"/features"} className="block">
+                <Card
+                  key={index}
+                  className={`glass card-hover animate-fade-up cursor-glow delay-${
+                    (index + 1) * 100
+                  }`}
+                >
+                  <CardHeader>
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                      <feature.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-base leading-relaxed line-clamp-2">
+                      {feature.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
@@ -297,7 +299,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                author: "Maria Santos",
+                author: "Bolanle Tinubu",
                 time: "2 hours ago",
                 content:
                   "Just organized a successful block party! Thanks to everyone who came out. Next one is planned for next month 🎉",
@@ -305,7 +307,7 @@ const Index = () => {
                 comments: 8,
               },
               {
-                author: "David Kim",
+                author: "David Adebayo",
                 time: "5 hours ago",
                 content:
                   "Lost cat found! Thanks to this amazing community for helping reunite Whiskers with his family ❤️",
@@ -313,7 +315,7 @@ const Index = () => {
                 comments: 12,
               },
               {
-                author: "Jennifer Lopez",
+                author: "Munyia Oluwasegun",
                 time: "1 day ago",
                 content:
                   "New coffee shop opening on Main Street next week! They're offering 20% off for neighborhood residents 🍵",
