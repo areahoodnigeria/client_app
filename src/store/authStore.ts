@@ -38,6 +38,13 @@ interface AuthState {
     accountType?: string,
     businessName?: string
   ) => Promise<SignupResponse>;
+  // Password recovery
+  forgotPassword: (email: string) => Promise<string>;
+  resetPassword: (
+    otp: string,
+    password: string,
+    accountType: string
+  ) => Promise<string>;
   fetchUser: () => Promise<void>;
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
@@ -176,6 +183,52 @@ const useAuthStore = create<AuthState>()(
             errorMessage = err.message;
           }
 
+          set({ error: errorMessage, isLoading: false });
+          throw err;
+        }
+      },
+
+      // Forgot Password: request OTP
+      forgotPassword: async (email: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await api.patch("/auth/forgot-password", { email });
+          set({ isLoading: false });
+          return response.data?.message || "OTP sent successfully";
+        } catch (err) {
+          let errorMessage = "An unknown error occurred";
+          if (axios.isAxiosError(err)) {
+            errorMessage = err.response?.data?.message || "Request failed";
+          } else if (err instanceof Error) {
+            errorMessage = err.message;
+          }
+          set({ error: errorMessage, isLoading: false });
+          throw err;
+        }
+      },
+
+      // Reset Password using OTP
+      resetPassword: async (
+        otp: string,
+        password: string,
+        accountType: string
+      ) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await api.patch("/auth/reset-password", {
+            otp,
+            password,
+            account_type: accountType,
+          });
+          set({ isLoading: false });
+          return response.data?.message || "Password reset successfully";
+        } catch (err) {
+          let errorMessage = "An unknown error occurred";
+          if (axios.isAxiosError(err)) {
+            errorMessage = err.response?.data?.message || "Reset failed";
+          } else if (err instanceof Error) {
+            errorMessage = err.message;
+          }
           set({ error: errorMessage, isLoading: false });
           throw err;
         }

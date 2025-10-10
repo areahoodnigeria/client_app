@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Verification from "./pages/Verification";
 import Features from "./pages/Features";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -40,6 +42,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route element={<ProtectedRoute />}>
           {/* Single dashboard entry */}
