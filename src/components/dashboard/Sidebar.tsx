@@ -38,17 +38,17 @@ export default function Sidebar({
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 1.45 }}
+      transition={{ duration: 0.25 }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={`fixed left-0 bottom-0 z-20 border-r border-border/50 backdrop-blur-md bg-white/70 dark:bg-black/30 transition-all ${
-        collapsed ? (hovering ? "w-64" : "w-16") : "w-64"
+        collapsed ? (hovering ? "w-64" : "w-10 md:w-16") : "w-64"
       }`}
       style={{ top: topOffset }}
     >
-      <div className="px-4 py-3">
+      <div className="px-4 py-3 h-16">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner" />
+          <div className="hidden md:block h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner" />
           {(!collapsed || hovering) && (
             <div className="text-sm">
               <div className="font-semibold leading-tight">{displayName}</div>
@@ -65,7 +65,7 @@ export default function Sidebar({
             to={link.to}
             end
             className={({ isActive }) =>
-              `group flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+              `group flex items-center gap-3 px-2 md:px-4 py-2 text-sm transition-colors ${
                 isActive
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
@@ -91,7 +91,7 @@ export default function Sidebar({
                 to={link.to}
                 end
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                  `group flex items-center gap-3 px-2 md:px-4 py-2 text-sm transition-colors ${
                     isActive
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
@@ -112,11 +112,6 @@ export default function Sidebar({
 export const neighbourLinks = [
   { to: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
   {
-    to: "/dashboard/posts",
-    label: "Posts",
-    icon: <PencilLine className="h-5 w-5" />,
-  },
-  {
     to: "/dashboard/groups",
     label: "Groups",
     icon: <Users className="h-5 w-5" />,
@@ -126,10 +121,10 @@ export const neighbourLinks = [
     label: "Events",
     icon: <CalendarDays className="h-5 w-5" />,
   },
-  { to: "/help", label: "Help Center", icon: <LifeBuoy className="h-5 w-5" /> },
+  // { to: "/help", label: "Help Center", icon: <LifeBuoy className="h-5 w-5" /> },
   {
     to: "/dashboard/invite",
-    label: "Invite Neighbours",
+    label: "Invite",
     icon: <UserCircle2 className="h-5 w-5" />,
   },
 ];
