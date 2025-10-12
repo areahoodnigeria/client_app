@@ -106,6 +106,14 @@ const useAuthStore = create<AuthState>()(
             isLoading: false,
             userType: normalizedType,
           });
+          // Persist token to localStorage for interceptor usage
+          try {
+            if (response?.data?.data?.token) {
+              localStorage.setItem("areaHoodToken", response.data.data.token);
+            }
+          } catch (_) {
+            // no-op
+          }
         } catch (err) {
           let errorMessage = "An unknown error occurred";
 
@@ -277,6 +285,12 @@ const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           userType: null,
         });
+        // Clear stored auth artifacts
+        try {
+          localStorage.removeItem("areaHoodToken");
+        } catch (_) {
+          // no-op
+        }
       },
 
       getUserType: () => get().userType,
