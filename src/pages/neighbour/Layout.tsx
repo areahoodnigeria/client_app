@@ -11,6 +11,7 @@ import Groups from "./Groups";
 import DiscoverPage from "./discover/DiscoverPage";
 import OrganizationDetails from "./discover/OrganizationDetails";
 import InvitePage from "./InvitePage";
+import RentalsPage from "./rentals/RentalsPage";
 
 export default function NeighbourLayout() {
   const [collapsed] = useState(true);
@@ -60,6 +61,7 @@ export default function NeighbourLayout() {
             <Route path="invite" element={<InvitePage />} />
             <Route path="discover" element={<DiscoverPage />} />
             <Route path="discover/:id" element={<OrganizationDetails />} />
+            <Route path="rentals" element={<RentalsPage />} />
           </Routes>{" "}
         </div>
       </main>

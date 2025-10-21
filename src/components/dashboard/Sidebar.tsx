@@ -111,6 +111,7 @@ export default function Sidebar({
 export const neighbourLinks = [
   { to: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
   { to: "/dashboard/discover", label: "Discover", icon: <MapPin className="h-5 w-5" /> },
+  { to: "/dashboard/rentals", label: "Rentals", icon: <Package className="h-5 w-5" /> },
   {
     to: "/dashboard/groups",
     label: "Groups",
