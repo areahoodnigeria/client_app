@@ -11,6 +11,7 @@ import {
   Package,
   UserCircle2,
   LogOut,
+  MapPin,
 } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import { useState } from "react";
@@ -109,6 +110,7 @@ export default function Sidebar({
 
 export const neighbourLinks = [
   { to: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
+  { to: "/dashboard/discover", label: "Discover", icon: <MapPin className="h-5 w-5" /> },
   {
     to: "/dashboard/groups",
     label: "Groups",

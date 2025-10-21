@@ -8,6 +8,9 @@ import { Route, Routes } from "react-router-dom";
 import NeighbourHome from "./NeighbourHome";
 import Profile from "./Profile";
 import Groups from "./Groups";
+import DiscoverPage from "./discover/DiscoverPage";
+import OrganizationDetails from "./discover/OrganizationDetails";
+import InvitePage from "./InvitePage";
 
 export default function NeighbourLayout() {
   const [collapsed] = useState(true);
@@ -54,6 +57,9 @@ export default function NeighbourLayout() {
             <Route path="/" element={<NeighbourHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="groups" element={<Groups />} />
+            <Route path="invite" element={<InvitePage />} />
+            <Route path="discover" element={<DiscoverPage />} />
+            <Route path="discover/:id" element={<OrganizationDetails />} />
           </Routes>{" "}
         </div>
       </main>
