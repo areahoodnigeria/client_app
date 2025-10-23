@@ -25,7 +25,7 @@ interface MediaItem {
   url?: string;
 }
 interface Post {
-  id: string;
+  _id: string;
   author: Author;
   content: string;
   media?: MediaItem[];
@@ -44,16 +44,16 @@ export default function PostCard({ post }: { post: Post }) {
   useEffect(() => {
     // loadComments(post.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post.id]);
+  }, [post._id]);
 
   return (
     <div
       className="glass-card p-5 md:p-6 border-b border-border"
       role="link"
       tabIndex={0}
-      onClick={() => navigate(`/dashboard/post/${post.id}`)}
+      onClick={() => navigate(`/dashboard/post/${post._id}`)}
       onKeyDown={(e) => {
-        if (e.key === "Enter") navigate(`/dashboard/post/${post.id}`);
+        if (e.key === "Enter") navigate(`/dashboard/post/${post._id}`);
       }}
     >
       <div className="flex items-center gap-3 mb-3">
@@ -125,7 +125,7 @@ export default function PostCard({ post }: { post: Post }) {
 
       <CommentModal
         open={showComment}
-        postId={post.id}
+        postId={post._id}
         onClose={() => setShowComment(false)}
       />
     </div>

@@ -24,17 +24,17 @@ export default function PostDetails() {
   const [showComment, setShowComment] = useState(false);
 
   const loadPost = usePostsStore((s) => s.loadPost);
-  const loadComments = usePostsStore((s) => s.loadComments);
+  // const loadComments = usePostsStore((s) => s.loadComments);
   const currentPost = usePostsStore((s) => s.currentPost);
   const loadingPost = usePostsStore((s) => s.loadingPost);
   const error = usePostsStore((s) => s.error);
-  const comments = usePostsStore((s) => s.getCommentsByPostId(postId || ""));
-  const loadingComments = usePostsStore((s) => (postId ? s.loadingComments[postId] : false));
+  // const comments = usePostsStore((s) => s.getCommentsByPostId(postId || ""));
+  // const loadingComments = usePostsStore((s) => (postId ? s.loadingComments[postId] : false));
 
   useEffect(() => {
     if (postId) {
       loadPost(postId);
-      loadComments(postId);
+      // loadComments(postId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
@@ -124,13 +124,13 @@ export default function PostDetails() {
 
         <div className="mt-4 border-t border-border pt-4">
           <div className="font-semibold mb-2">Comments</div>
-          {loadingComments && (
+          {/* {loadingComments && (
             <div className="space-y-2 animate-pulse">
               <div className="h-3 w-40 bg-muted rounded" />
               <div className="h-3 w-64 bg-muted rounded" />
             </div>
-          )}
-          {!loadingComments && comments.length === 0 && (
+          )} */}
+          {/* {!loadingComments && comments.length === 0 && (
             <div className="text-xs text-muted-foreground">No comments yet</div>
           )}
           {!loadingComments && comments.length > 0 && (
@@ -147,10 +147,14 @@ export default function PostDetails() {
                 </div>
               ))}
             </div>
-          )}
+          )} */}
         </div>
 
-        <CommentModal open={showComment} postId={currentPost.id} onClose={() => setShowComment(false)} />
+        <CommentModal
+          open={showComment}
+          postId={currentPost.id}
+          onClose={() => setShowComment(false)}
+        />
       </motion.div>
     </div>
   );

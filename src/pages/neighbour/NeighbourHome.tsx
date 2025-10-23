@@ -17,7 +17,7 @@ interface MediaItem {
 }
 
 interface Post {
-  id: string;
+  _id: string;
   author: Author;
   content: string;
   media?: MediaItem[];
@@ -52,8 +52,11 @@ export default function NeighbourHome() {
       const res = await api.get(`/posts`, {
         params: { page: pageNum, limit: pageSize },
       });
+
       const data = res.data?.data || res.data?.posts || [];
       const meta = res.data?.metadata || res.data?.meta || {};
+      console.log(data);
+
       setPosts(data);
       setHasMore(Boolean(meta?.has_more || meta?.hasMore));
     } catch (err: any) {
