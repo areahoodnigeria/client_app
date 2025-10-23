@@ -28,7 +28,7 @@ export default function Sidebar({
   bottomLinks,
   topOffset = 56,
 }: SidebarProps) {
-  const { user } = useAuthStore();
+  const { user, userType } = useAuthStore();
   const displayName = user?.name || "User";
   const [hovering, setHovering] = useState(false);
 
@@ -50,7 +50,9 @@ export default function Sidebar({
           {(!collapsed || hovering) && (
             <div className="text-sm">
               <div className="font-semibold leading-tight">{displayName}</div>
-              <div className="text-muted-foreground leading-tight">Member</div>
+              <div className="text-muted-foreground leading-tight">
+                {userType}
+              </div>
             </div>
           )}
         </div>

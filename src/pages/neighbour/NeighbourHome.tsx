@@ -233,7 +233,7 @@ export default function NeighbourHome() {
           </button>
         </div>
 
-        {/* Live in Hood */}
+        {/* Live in Hood
         <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
           <div className="font-semibold text-foreground mb-3">Live in Hood</div>
           <div className="space-y-3">
@@ -267,14 +267,14 @@ export default function NeighbourHome() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Trending section */}
         <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
           <div className="font-semibold text-foreground mb-2">
             Community Alerts
           </div>
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             {[
               { name: "Ogiso", count: "Trending in Nigeria" },
               { name: "Ondo", count: "7,642 posts" },
@@ -293,7 +293,10 @@ export default function NeighbourHome() {
                 </button>
               </div>
             ))}
-          </div>
+          </div> */}
+          <p className="text-xs text-muted-foreground">
+            No alerts for this location at the moment.
+          </p>
         </div>
       </div>
     </div>

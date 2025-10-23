@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Heart, MessageSquare, Share2 } from "lucide-react";
-import api from "../../api/api";
 import CommentModal from "./CommentModal";
 import { useNavigate } from "react-router-dom";
+// import usePostsStore from "../../store/postsStore";
 
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
@@ -32,41 +32,23 @@ interface Post {
   created_at: string;
 }
 
-interface Comment {
-  id: string;
-  content: string;
-  author?: { name?: string } | null;
-  created_at?: string;
-}
-
 export default function PostCard({ post }: { post: Post }) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loadingComments, setLoadingComments] = useState(false);
   const [showComment, setShowComment] = useState(false);
   const navigate = useNavigate();
   const avatarUrl = post.author?.profile_picture?.url;
 
-  const fetchComments = async () => {
-    setLoadingComments(true);
-    try {
-      const res = await api.get(`/comments/${post.id}`);
-      const data = res.data?.data || res.data?.comments || [];
-      setComments(data);
-    } catch (_) {
-      // ignore
-    } finally {
-      setLoadingComments(false);
-    }
-  };
+  // const loadComments = usePostsStore((s) => s.loadComments);
+  // const comments = usePostsStore((s) => s.getCommentsByPostId(post.id));
+  // const loadingComments = usePostsStore((s) => s.loadingComments[post.id]);
 
   useEffect(() => {
-    fetchComments();
+    // loadComments(post.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
   return (
     <div
-      className="glass-card p-5 md:p-6"
+      className="glass-card p-5 md:p-6 border-b border-border"
       role="link"
       tabIndex={0}
       onClick={() => navigate(`/dashboard/post/${post.id}`)}
@@ -88,9 +70,9 @@ export default function PostCard({ post }: { post: Post }) {
           <div className="font-semibold text-foreground leading-tight">
             {post.author?.name || "Neighbour"}
           </div>
-          <div className="text-xs text-muted-foreground">
-            {timeAgo(post.created_at)}
-          </div>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {timeAgo(post.created_at)}
         </div>
       </div>
 
@@ -127,6 +109,11 @@ export default function PostCard({ post }: { post: Post }) {
           }}
         >
           <MessageSquare className="h-4 w-4" /> Comment
+          {/* {loadingComments ? (
+            <span className="text-xs text-muted-foreground">Loading...</span>
+          ) : (
+            <span className="text-xs text-muted-foreground">{comments.length}</span>
+          )} */}
         </button>
         <button
           className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm"
@@ -136,38 +123,10 @@ export default function PostCard({ post }: { post: Post }) {
         </button>
       </div>
 
-      {/* Comments */}
-      <div className="mt-4 pl-2 border-t border-border pt-4">
-        {/* Existing comments */}
-        <div className="mt-3 space-y-2">
-          {loadingComments ? (
-            <div className="space-y-2 animate-pulse">
-              <div className="h-3 w-40 bg-muted rounded" />
-              <div className="h-3 w-64 bg-muted rounded" />
-            </div>
-          ) : comments.length === 0 ? (
-            <div className="text-xs text-muted-foreground">No comments yet</div>
-          ) : (
-            comments.map((c) => (
-              <div key={c.id} className="flex items-start gap-2">
-                <div className="h-6 w-6 rounded-full bg-secondary" />
-                <div className="bg-secondary/60 px-3 py-2 rounded-lg text-xs">
-                  <div className="font-medium text-foreground">
-                    {c.author?.name || "Neighbour"}
-                  </div>
-                  <div className="text-foreground/90">{c.content}</div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
       <CommentModal
         open={showComment}
         postId={post.id}
         onClose={() => setShowComment(false)}
-        onCommentCreated={(newComment) => setComments((prev) => [newComment as any, ...prev])}
       />
     </div>
   );

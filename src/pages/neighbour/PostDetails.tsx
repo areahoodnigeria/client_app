@@ -2,29 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import api from "../../api/api";
+import usePostsStore from "../../store/postsStore";
 import CommentModal from "./CommentModal";
-
-interface Author {
-  name: string;
-  profile_picture?: { url?: string } | null;
-}
-interface MediaItem {
-  url?: string;
-}
-interface Post {
-  id: string;
-  author: Author;
-  content: string;
-  media?: MediaItem[];
-  created_at: string;
-}
-interface Comment {
-  id: string;
-  content: string;
-  author?: { name?: string } | null;
-  created_at?: string;
-}
 
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
@@ -42,43 +21,25 @@ function timeAgo(dateStr: string) {
 export default function PostDetails() {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [showComment, setShowComment] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await api.get(`/posts/${postId}`);
-        const data: Post = res.data?.data || res.data?.post;
-        setPost(data);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || "Failed to load post");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (postId) load();
-  }, [postId]);
+  const loadPost = usePostsStore((s) => s.loadPost);
+  const loadComments = usePostsStore((s) => s.loadComments);
+  const currentPost = usePostsStore((s) => s.currentPost);
+  const loadingPost = usePostsStore((s) => s.loadingPost);
+  const error = usePostsStore((s) => s.error);
+  const comments = usePostsStore((s) => s.getCommentsByPostId(postId || ""));
+  const loadingComments = usePostsStore((s) => (postId ? s.loadingComments[postId] : false));
 
   useEffect(() => {
-    const loadComments = async () => {
-      try {
-        const res = await api.get(`/comments/${postId}`);
-        const data = res.data?.data || res.data?.comments || [];
-        setComments(data);
-      } catch (_) {
-        /* ignore */
-      }
-    };
-    if (postId) loadComments();
+    if (postId) {
+      loadPost(postId);
+      loadComments(postId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
 
-  if (loading) {
+  if (loadingPost) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse glass-card p-6 w-full max-w-2xl">
@@ -90,7 +51,7 @@ export default function PostDetails() {
     );
   }
 
-  if (error || !post) {
+  if (error || !currentPost) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-muted-foreground">{error || "Post not found"}</div>
@@ -98,7 +59,7 @@ export default function PostDetails() {
     );
   }
 
-  const avatarUrl = post.author?.profile_picture?.url;
+  const avatarUrl = currentPost.author?.profile_picture?.url;
 
   return (
     <div className="space-y-4">
@@ -119,7 +80,7 @@ export default function PostDetails() {
           {avatarUrl ? (
             <img
               src={avatarUrl}
-              alt={post.author?.name || ""}
+              alt={currentPost.author?.name || ""}
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
@@ -127,26 +88,26 @@ export default function PostDetails() {
           )}
           <div>
             <div className="font-semibold text-foreground leading-tight">
-              {post.author?.name || "Neighbour"}
+              {currentPost.author?.name || "Neighbour"}
             </div>
             <div className="text-xs text-muted-foreground">
-              {timeAgo(post.created_at)}
+              {timeAgo(currentPost.created_at)}
             </div>
           </div>
         </div>
 
-        <p className="text-base md:text-lg text-foreground leading-relaxed whitespace-pre-wrap">
-          {post.content}
+        <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-wrap">
+          {currentPost.content}
         </p>
 
-        {post.media && post.media.length > 0 && (
+        {currentPost.media && currentPost.media.length > 0 && (
           <div className="grid grid-cols-2 gap-3 mt-4">
-            {post.media.slice(0, 4).map((m, i) => (
+            {currentPost.media.slice(0, 4).map((m, i) => (
               <img
                 key={i}
                 src={m.url || ""}
                 alt="media"
-                className="rounded-lg border border-border object-cover w-full h-52"
+                className="rounded-lg border border-border object-cover w-full h-40"
               />
             ))}
           </div>
@@ -157,36 +118,40 @@ export default function PostDetails() {
             className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm"
             onClick={() => setShowComment(true)}
           >
-            Add comment
+            Comment
           </button>
         </div>
 
-        <div className="mt-6 space-y-3">
-          <div className="text-sm font-medium text-foreground">Comments</div>
-          {comments.length === 0 ? (
+        <div className="mt-4 border-t border-border pt-4">
+          <div className="font-semibold mb-2">Comments</div>
+          {loadingComments && (
+            <div className="space-y-2 animate-pulse">
+              <div className="h-3 w-40 bg-muted rounded" />
+              <div className="h-3 w-64 bg-muted rounded" />
+            </div>
+          )}
+          {!loadingComments && comments.length === 0 && (
             <div className="text-xs text-muted-foreground">No comments yet</div>
-          ) : (
-            comments.map((c) => (
-              <div key={c.id} className="flex items-start gap-2">
-                <div className="h-6 w-6 rounded-full bg-secondary" />
-                <div className="bg-secondary/60 px-3 py-2 rounded-lg text-xs">
-                  <div className="font-medium text-foreground">
-                    {c.author?.name || "Neighbour"}
+          )}
+          {!loadingComments && comments.length > 0 && (
+            <div>
+              {comments.map((c) => (
+                <div key={c.id} className="flex items-start gap-2 mb-2">
+                  <div className="h-6 w-6 rounded-full bg-secondary" />
+                  <div className="bg-secondary/60 px-3 py-2 rounded-lg text-xs">
+                    <div className="font-medium text-foreground">
+                      {c.author?.name || "Neighbour"}
+                    </div>
+                    <div className="text-foreground/90">{c.content}</div>
                   </div>
-                  <div className="text-foreground/90">{c.content}</div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
-      </motion.div>
 
-      <CommentModal
-        open={showComment}
-        postId={post.id}
-        onClose={() => setShowComment(false)}
-        onCommentCreated={(nc) => setComments((prev) => [nc as any, ...prev])}
-      />
+        <CommentModal open={showComment} postId={currentPost.id} onClose={() => setShowComment(false)} />
+      </motion.div>
     </div>
   );
 }
