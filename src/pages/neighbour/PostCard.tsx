@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Heart, MessageSquare, Share2, Send } from "lucide-react";
+import { Heart, MessageSquare, Share2 } from "lucide-react";
 import api from "../../api/api";
+import CommentModal from "./CommentModal";
+import { useNavigate } from "react-router-dom";
 
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
@@ -40,9 +42,8 @@ interface Comment {
 export default function PostCard({ post }: { post: Post }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [sending, setSending] = useState(false);
-
+  const [showComment, setShowComment] = useState(false);
+  const navigate = useNavigate();
   const avatarUrl = post.author?.profile_picture?.url;
 
   const fetchComments = async () => {
@@ -63,27 +64,16 @@ export default function PostCard({ post }: { post: Post }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
-  const handleSendComment = async () => {
-    if (!commentText.trim()) return;
-    setSending(true);
-    try {
-      const payload = { post_id: post.id, content: commentText.trim() };
-      const res = await api.post(`/comments/create-comment`, payload);
-      const newComment: Comment = res.data?.data || {
-        id: Math.random().toString(36).slice(2),
-        content: commentText.trim(),
-      };
-      setComments((prev) => [newComment, ...prev]);
-      setCommentText("");
-    } catch (_) {
-      // optionally handle toast
-    } finally {
-      setSending(false);
-    }
-  };
-
   return (
-    <div className="glass-card p-5 md:p-6">
+    <div
+      className="glass-card p-5 md:p-6"
+      role="link"
+      tabIndex={0}
+      onClick={() => navigate(`/dashboard/post/${post.id}`)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") navigate(`/dashboard/post/${post.id}`);
+      }}
+    >
       <div className="flex items-center gap-3 mb-3">
         {avatarUrl ? (
           <img
@@ -123,36 +113,31 @@ export default function PostCard({ post }: { post: Post }) {
       )}
 
       <div className="flex items-center gap-4 mt-4">
-        <button className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm">
+        <button
+          className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Heart className="h-4 w-4" /> Like
         </button>
-        <button className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm">
+        <button
+          className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowComment(true);
+          }}
+        >
           <MessageSquare className="h-4 w-4" /> Comment
         </button>
-        <button className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm">
+        <button
+          className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 text-sm"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Share2 className="h-4 w-4" /> Share
         </button>
       </div>
 
       {/* Comments */}
       <div className="mt-4 pl-2 border-t border-border pt-4">
-        <div className="flex gap-2">
-          <input
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Write a comment..."
-            className="flex-1 px-3 py-2 rounded-lg bg-background/60 border border-border text-sm"
-          />
-          <button
-            onClick={handleSendComment}
-            disabled={sending}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
-            <Send className="h-4 w-4" />
-            Send
-          </button>
-        </div>
-
         {/* Existing comments */}
         <div className="mt-3 space-y-2">
           {loadingComments ? (
@@ -177,6 +162,13 @@ export default function PostCard({ post }: { post: Post }) {
           )}
         </div>
       </div>
+
+      <CommentModal
+        open={showComment}
+        postId={post.id}
+        onClose={() => setShowComment(false)}
+        onCommentCreated={(newComment) => setComments((prev) => [newComment as any, ...prev])}
+      />
     </div>
   );
 }

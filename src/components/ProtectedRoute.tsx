@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import Loader from "./Loader";
 
 interface ProtectedRouteProps {
   redirectPath?: string;
@@ -14,7 +15,7 @@ const ProtectedRoute = ({
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   // Redirect to login if not authenticated

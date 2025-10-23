@@ -8,7 +8,11 @@ interface User {
   id: string;
   email: string;
   name: string;
-  user_type?: string; // neighbour or organization
+  referral_code?: string;
+  first_name?: string;
+  last_name?: string;
+  profile_picture?: string;
+  // neighbour or organization
 }
 
 // Response interface for signup
@@ -101,7 +105,7 @@ const useAuthStore = create<AuthState>()(
 
           set({
             user: response.data.user,
-            token: response.data.token,
+            token: response.data.data.token,
             isAuthenticated: true,
             isLoading: false,
             userType: normalizedType,
@@ -244,22 +248,28 @@ const useAuthStore = create<AuthState>()(
 
       // Fetch current user using protected endpoint
       fetchUser: async () => {
+        console.log("response");
         set({ isLoading: true, error: null });
         try {
-          const response = await api.get("/auth/me");
-          const rawType =
-            response.data.user?.user_type ||
-            response.data.user?.account_type ||
-            response.data.user_type ||
-            response.data.account_type ||
-            null;
-          const normalizedType = rawType
-            ? String(rawType).toLowerCase() === "organization"
-              ? "organization"
-              : "neighbour"
-            : null;
+          const response = await api.get("/users/profile/me");
+          console.log("response", response);
+
+          const normalizedType = localStorage
+            .getItem("auth-storage")
+            ?.includes("organization")
+            ? "organization"
+            : "neighbour";
+
           set({
-            user: response.data.user,
+            user: {
+              id: response.data.data._id,
+              email: response.data.data.email,
+              name: `${response.data.data.first_name} ${response.data.data.last_name}`,
+              first_name: response.data.data.first_name,
+              last_name: response.data.data.last_name,
+              profile_picture: response.data.data.profile_picture?.url,
+              referral_code: response.data.data.referral?.referral_code,
+            },
             isAuthenticated: true,
             isLoading: false,
             userType: normalizedType,
@@ -288,6 +298,7 @@ const useAuthStore = create<AuthState>()(
         // Clear stored auth artifacts
         try {
           localStorage.removeItem("areaHoodToken");
+          localStorage.removeItem("auth-storage");
         } catch (_) {
           // no-op
         }
@@ -298,7 +309,6 @@ const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage", // name of the item in the storage
       partialize: (state) => ({
-        user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
         userType: state.userType,

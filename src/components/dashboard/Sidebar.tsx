@@ -4,7 +4,6 @@ import {
   Home,
   User,
   Users,
-  CalendarDays,
   Bell,
   Settings,
   Building2,
@@ -110,18 +109,26 @@ export default function Sidebar({
 
 export const neighbourLinks = [
   { to: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
-  { to: "/dashboard/discover", label: "Discover", icon: <MapPin className="h-5 w-5" /> },
-  { to: "/dashboard/rentals", label: "Rentals", icon: <Package className="h-5 w-5" /> },
+  {
+    to: "/dashboard/discover",
+    label: "Discover",
+    icon: <MapPin className="h-5 w-5" />,
+  },
+  {
+    to: "/dashboard/rentals",
+    label: "Rentals",
+    icon: <Package className="h-5 w-5" />,
+  },
   {
     to: "/dashboard/groups",
     label: "Groups",
     icon: <Users className="h-5 w-5" />,
   },
-  {
-    to: "/dashboard/events",
-    label: "Events",
-    icon: <CalendarDays className="h-5 w-5" />,
-  },
+  // {
+  //   to: "/dashboard/events",
+  //   label: "Events",
+  //   icon: <CalendarDays className="h-5 w-5" />,
+  // },
   // { to: "/help", label: "Help Center", icon: <LifeBuoy className="h-5 w-5" /> },
   {
     to: "/dashboard/invite",

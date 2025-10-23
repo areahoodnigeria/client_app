@@ -22,11 +22,12 @@ import Loader from "./components/Loader";
 import { useEffect } from "react";
 import useAuthStore from "./store/authStore";
 import DashboardRouter from "./pages/DashboardRouter.tsx";
-import ScrollToTop from "./components/ScrollToTop.tsx";
 
 function App() {
   const { token, user, fetchUser } = useAuthStore();
   useEffect(() => {
+    console.log(token);
+
     if (token && !user) {
       fetchUser().catch(() => {
         // handled via interceptor
@@ -35,7 +36,6 @@ function App() {
   }, [token, user, fetchUser]);
   return (
     <BrowserRouter>
-      <ScrollToTop />
       <Routes>
         {/* <Route element={<Layout />}> */}
         <Route path="/" element={<Index />} />

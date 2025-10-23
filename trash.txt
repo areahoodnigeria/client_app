@@ -1,0 +1,8 @@
+  {/* Add Post button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowAdd(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
+              >
+                <Plus className="h-4 w-4" /> Add Post
+              </button>

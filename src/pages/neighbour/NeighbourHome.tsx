@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Image, Smile, MapPin, Link2 } from "lucide-react";
 import api from "../../api/api";
 import PostCard from "./PostCard";
 import AddPostModal from "./AddPostModal";
@@ -76,11 +76,11 @@ export default function NeighbourHome() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 relative">
       {/* Center column */}
       <div className="lg:col-span-2 space-y-4">
         {/* Welcome header */}
-        <div className="glass-card p-6 md:p-8">
+        {/* <div className="glass-card p-6 md:p-8">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             Hey {firstName},{" "}
             <span className="text-gradient">welcome back to your hood!</span>
@@ -88,42 +88,50 @@ export default function NeighbourHome() {
           <p className="text-muted-foreground mt-2">
             Here's what's happening in your neighborhood
           </p>
-        </div>
-
-        {/* Category filter bar */}
-        <div className="glass-card p-2 md:p-3">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { key: "for-you", label: "For You" },
-              { key: "recent", label: "Recent" },
-              { key: "nearby", label: "Nearby" },
-              { key: "trending", label: "Trending" },
-            ].map((cat, idx) => (
-              <button
-                key={cat.key}
-                className={`px-4 py-2 rounded-full text-sm border border-border hover:bg-muted/30 transition-all ${
-                  idx === 0
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        </div> */}
 
         {/* Feed or nested route content */}
         {isHome ? (
           <div className="space-y-4">
-            {/* Add Post button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowAdd(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
-              >
-                <Plus className="h-4 w-4" /> Add Post
-              </button>
+            {/* Composer box */}
+            <div className="glass-card p-4 md:p-5 border-b border-border">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-foreground overflow-clip">
+                  {(user && (
+                    <img
+                      src={user.profile_picture || ""}
+                      alt={user.name || ""}
+                      srcSet={user.profile_picture || ""}
+                    />
+                  )) ||
+                    firstName[0]?.toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <div className="rounded-xl border border-border bg-white/60 dark:bg-black/30">
+                    <textarea
+                      placeholder={`Hey ${firstName}, what's happening in your hood?`}
+                      className="w-full bg-transparent p-3 md:p-4 text-foreground placeholder:text-muted-foreground outline-none resize-none"
+                      rows={3}
+                      readOnly
+                      onClick={() => setShowAdd(true)}
+                    />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <Image className="h-5 w-5" />
+                      <Smile className="h-5 w-5" />
+                      <MapPin className="h-5 w-5" />
+                      <Link2 className="h-5 w-5" />
+                    </div>
+                    <button
+                      onClick={() => setShowAdd(true)}
+                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Loader / Error */}
@@ -164,7 +172,7 @@ export default function NeighbourHome() {
                 ) : (
                   posts.map((post, index) => (
                     <motion.div
-                      key={post.id}
+                      key={index}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.25, delay: index * 0.03 }}
@@ -212,61 +220,80 @@ export default function NeighbourHome() {
       </div>
 
       {/* Right panel */}
-      <div className="space-y-4">
-        {/* Location card */}
+      <div className="space-y-4 sticky top-36 self-start">
+        {/* Upgrade card */}
         <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-muted-foreground">
-                Current location
+          <div className="text-md font-bold text-muted-foreground">
+            Current location
+          </div>
+          <div className="text-xl font-bold text-foreground">Doon south</div>
+
+          <button className="mt-4 px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+            Change Location
+          </button>
+        </div>
+
+        {/* Live in Hood */}
+        <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
+          <div className="font-semibold text-foreground mb-3">Live in Hood</div>
+          <div className="space-y-3">
+            {[
+              {
+                title: "Neighbour is speaking",
+                subtitle: "Community Chat",
+                count: 91,
+              },
+              {
+                title: "Host is speaking",
+                subtitle: "Onboarding Series",
+                count: 70,
+              },
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-muted" />
+                  <div>
+                    <div className="text-sm text-foreground font-medium">
+                      {item.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {item.subtitle}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs rounded-full bg-muted px-2 py-1 text-muted-foreground">
+                  +{item.count}
+                </span>
               </div>
-              <div className="text-lg font-semibold text-foreground">
-                Doon South
-              </div>
-            </div>
-            <button className="text-sm text-primary hover:underline">
-              Change
-            </button>
+            ))}
           </div>
         </div>
 
-        {/* Alerts/Promotions */}
+        {/* Trending section */}
         <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
           <div className="font-semibold text-foreground mb-2">
             Community Alerts
           </div>
-          <div className="text-sm text-muted-foreground">
-            No new alerts. Stay safe and informed.
+          <div className="space-y-3">
+            {[
+              { name: "Ogiso", count: "Trending in Nigeria" },
+              { name: "Ondo", count: "7,642 posts" },
+              { name: "Chicken Republic", count: "Trending in Nigeria" },
+              { name: "Asher", count: "8,328 posts" },
+            ].map((t, idx) => (
+              <div key={idx} className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-muted-foreground">{t.count}</div>
+                  <div className="text-sm text-foreground font-medium">
+                    {t.name}
+                  </div>
+                </div>
+                <button className="text-xs text-muted-foreground hover:text-foreground">
+                  ···
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Explore banner */}
-        <div className="relative overflow-hidden rounded-xl border border-border shadow-card">
-          <div className="bg-gradient-to-r from-primary to-primary/70 p-6 text-primary-foreground">
-            <div className="font-bold text-lg">Explore Treat Map</div>
-            <div className="text-sm opacity-90">
-              Discover nearby spots and community favorites
-            </div>
-            <button className="mt-4 bg-white text-primary px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors">
-              Explore
-            </button>
-          </div>
-        </div>
-
-        {/* Small feed cards */}
-        <div className="space-y-3">
-          {[
-            "Local bakery offers 10% off",
-            "Community yoga this Sunday",
-            "New group: Pet Lovers",
-          ].map((title, idx) => (
-            <div
-              key={idx}
-              className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-4"
-            >
-              <div className="text-sm text-foreground font-medium">{title}</div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

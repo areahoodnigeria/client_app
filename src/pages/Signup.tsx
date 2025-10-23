@@ -10,6 +10,7 @@ import {
   Users,
   Building,
   AlertCircle,
+  Link2,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import Loader from "../components/Loader";
@@ -27,12 +28,15 @@ const Signup = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [businessName, setBusinessName] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [referral, setReferral] = useState(queryParams.get("ref") || "");
 
   // Get authentication state and actions from Zustand store
   const {
@@ -80,12 +84,28 @@ const Signup = () => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
+    // Validate confirm password
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
     // Validate business name for organizations
     if (userType === "organization") {
       if (!businessName.trim()) {
         newErrors.businessName = "Business name is required";
       } else if (businessName.trim().length < 2) {
         newErrors.businessName = "Business name must be at least 2 characters";
+      }
+    }
+
+    // Validate referral code if provided
+    if (referral.trim()) {
+      const refCode = referral.trim();
+      if (!/^[a-zA-Z0-9]{7}$/.test(refCode)) {
+        newErrors.referral =
+          "Referral code must be exactly 7 letters or numbers";
       }
     }
 
@@ -134,7 +154,7 @@ const Signup = () => {
         formData.email,
         formData.password,
         `${formData.firstName} ${formData.lastName}`,
-        undefined, // referredBy (optional)
+        referral?.trim() || undefined, // referredBy (optional)
         userType, // account_type (user or organization)
         userType === "organization" ? businessName : undefined
       );
@@ -152,6 +172,7 @@ const Signup = () => {
           lastName: "",
           email: "",
           password: "",
+          confirmPassword: "",
         });
         setBusinessName("");
 
@@ -220,7 +241,7 @@ const Signup = () => {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23000000%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
 
       {/* Logo at top-left */}
-      <Link to="/" className="absolute top-6 left-6 z-50">
+      <Link to="/" className="absolute top-6 left-6 z-40">
         <Link
           to="/"
           className="flex items-center space-x-2 group transition-all duration-300 hover:scale-105"
@@ -463,6 +484,90 @@ const Signup = () => {
                 {errors.password && (
                   <p className="mt-2 text-sm text-red-600 animate-fade-in">
                     {errors.password}
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="animate-slide-in delay-625">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="Re-enter your password"
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
+                      errors.confirmPassword
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="mt-2 text-sm text-red-600 animate-fade-in">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+
+              {/* Referral Code (optional) */}
+              <div className="animate-slide-in delay-650">
+                <label
+                  htmlFor="referral"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Referral Code (optional)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Link2 className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <input
+                    type="text"
+                    id="referral"
+                    value={referral}
+                    onChange={(e) => {
+                      setReferral(e.target.value);
+                      if (errors.referral) {
+                        setErrors((prev) => ({ ...prev, referral: "" }));
+                      }
+                    }}
+                    placeholder="If you have a referral code, enter it here"
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-background/50 text-foreground transition-all duration-300 hover:shadow-md ${
+                      errors.referral
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-border"
+                    }`}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Enter a 7-character code. Letters and numbers only.
+                </p>
+                {errors.referral && (
+                  <p className="mt-1 text-sm text-red-600 animate-fade-in">
+                    {errors.referral}
                   </p>
                 )}
               </div>

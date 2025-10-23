@@ -12,6 +12,7 @@ import DiscoverPage from "./discover/DiscoverPage";
 import OrganizationDetails from "./discover/OrganizationDetails";
 import InvitePage from "./InvitePage";
 import RentalsPage from "./rentals/RentalsPage";
+import PostDetails from "./PostDetails";
 
 export default function NeighbourLayout() {
   const [collapsed] = useState(true);
@@ -62,6 +63,7 @@ export default function NeighbourLayout() {
             <Route path="discover" element={<DiscoverPage />} />
             <Route path="discover/:id" element={<OrganizationDetails />} />
             <Route path="rentals" element={<RentalsPage />} />
+            <Route path="post/:postId" element={<PostDetails />} />
           </Routes>{" "}
         </div>
       </main>

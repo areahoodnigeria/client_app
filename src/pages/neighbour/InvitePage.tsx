@@ -1,13 +1,13 @@
 import { useState } from "react";
+import useAuthStore from "../../store/authStore";
 
-type InvitePageProps = {
-  referralCode?: string;
-};
-
-export default function InvitePage({ referralCode = "OBI-1234" }: InvitePageProps) {
+export default function InvitePage() {
   const [copiedMessage, setCopiedMessage] = useState<string>("");
+  const { user } = useAuthStore();
 
-  const referralLink = `https://areahood.com/invite?ref=${encodeURIComponent(referralCode)}`;
+  const referralCode = user?.referral_code || "";
+
+  const referralLink = `https://areahood.com/signup?ref=${referralCode || ""}`;
 
   const showCopied = (msg: string) => {
     setCopiedMessage(msg);
@@ -37,17 +37,22 @@ export default function InvitePage({ referralCode = "OBI-1234" }: InvitePageProp
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
-  return (
+  return referralCode ? (
     <div className="min-h-[70vh] w-full flex items-center justify-center px-4">
       <div className="w-full max-w-2xl space-y-6">
         {/* Header */}
         <div className="glass-card p-6 md:p-8 text-center">
           <div className="flex items-center justify-center mb-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-2xl">🏡</div>
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-2xl">
+              🏡
+            </div>
           </div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground">Invite Your Neighbors</h1>
+          <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
+            Invite Your Neighbors
+          </h1>
           <p className="mt-2 text-sm md:text-base text-muted-foreground">
-            Help grow your community by inviting your friends to join you on AreaHood!
+            Help grow your community by inviting your friends to join you on
+            AreaHood!
           </p>
         </div>
 
@@ -55,8 +60,12 @@ export default function InvitePage({ referralCode = "OBI-1234" }: InvitePageProp
         <div className="glass-card p-6 md:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
-              <div className="text-sm text-muted-foreground">Your referral code</div>
-              <div className="mt-1 text-2xl md:text-3xl font-bold tracking-wide">{referralCode}</div>
+              <div className="text-sm text-muted-foreground">
+                Your referral code
+              </div>
+              <div className="mt-1 text-2xl md:text-3xl font-bold tracking-wide">
+                {referralCode}
+              </div>
             </div>
             <button
               onClick={handleCopyCode}
@@ -84,7 +93,8 @@ export default function InvitePage({ referralCode = "OBI-1234" }: InvitePageProp
             </button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Each friend who joins using your code helps you build a stronger community.
+            Each friend who joins using your code helps you build a stronger
+            community.
           </p>
         </div>
 
@@ -94,6 +104,24 @@ export default function InvitePage({ referralCode = "OBI-1234" }: InvitePageProp
             {copiedMessage}
           </div>
         )}
+      </div>
+    </div>
+  ) : (
+    <div className="min-h-[70vh] w-full flex items-center justify-center px-4">
+      <div className="w-full max-w-2xl space-y-6">
+        <div className="glass-card p-6 md:p-8 text-center">
+          <div className="flex items-center justify-center mb-3">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-2xl">
+              🏡
+            </div>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
+            You don't have a referral code yet
+          </h1>
+          <p className="mt-2 text-sm md:text-base text-muted-foreground">
+            Please contact an admin to get your referral code.
+          </p>
+        </div>
       </div>
     </div>
   );
