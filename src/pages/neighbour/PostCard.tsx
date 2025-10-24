@@ -18,6 +18,7 @@ function timeAgo(dateStr: string) {
 }
 
 interface Author {
+  id?: string;
   name: string;
   profile_picture?: { url?: string } | null;
 }
@@ -61,15 +62,40 @@ export default function PostCard({ post }: { post: Post }) {
           <img
             src={avatarUrl}
             alt={post.author?.name || ""}
-            className="h-10 w-10 rounded-full object-cover"
+            className="h-10 w-10 rounded-full object-cover cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              const authorId = post.author?.id;
+              if (authorId) {
+                navigate(`/dashboard/profile/${authorId}`);
+              }
+            }}
           />
         ) : (
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner" />
+          <div
+            className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              const authorId = post.author?.id;
+              if (authorId) {
+                navigate(`/dashboard/profile/${authorId}`);
+              }
+            }}
+          />
         )}
         <div>
-          <div className="font-semibold text-foreground leading-tight">
+          <button
+            className="font-semibold text-foreground leading-tight hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+              const authorId = post.author?.id;
+              if (authorId) {
+                navigate(`/dashboard/profile/${authorId}`);
+              }
+            }}
+          >
             {post.author?.name || "Neighbour"}
-          </div>
+          </button>
         </div>
         <div className="text-xs text-muted-foreground">
           {timeAgo(post.created_at)}

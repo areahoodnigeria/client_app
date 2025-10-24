@@ -81,15 +81,31 @@ export default function PostDetails() {
             <img
               src={avatarUrl}
               alt={currentPost.author?.name || ""}
-              className="h-10 w-10 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover cursor-pointer"
+              onClick={() => {
+                const authorId = currentPost.author?.id;
+                if (authorId) navigate(`/dashboard/profile/${authorId}`);
+              }}
             />
           ) : (
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner" />
+            <div
+              className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner cursor-pointer"
+              onClick={() => {
+                const authorId = currentPost.author?.id;
+                if (authorId) navigate(`/dashboard/profile/${authorId}`);
+              }}
+            />
           )}
           <div>
-            <div className="font-semibold text-foreground leading-tight">
+            <button
+              className="font-semibold text-foreground leading-tight hover:underline"
+              onClick={() => {
+                const authorId = currentPost.author?.id;
+                if (authorId) navigate(`/dashboard/profile/${authorId}`);
+              }}
+            >
               {currentPost.author?.name || "Neighbour"}
-            </div>
+            </button>
             <div className="text-xs text-muted-foreground">
               {timeAgo(currentPost.created_at)}
             </div>

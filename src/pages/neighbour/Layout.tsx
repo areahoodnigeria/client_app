@@ -7,6 +7,7 @@ import Sidebar, {
 import { Route, Routes } from "react-router-dom";
 import NeighbourHome from "./NeighbourHome";
 import Profile from "./Profile";
+import PublicProfile from "./PublicProfile";
 import Groups from "./Groups";
 import DiscoverPage from "./discover/DiscoverPage";
 import OrganizationDetails from "./discover/OrganizationDetails";
@@ -58,6 +59,7 @@ export default function NeighbourLayout() {
           <Routes>
             <Route path="/" element={<NeighbourHome />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="profile/:userId" element={<PublicProfile />} />
             <Route path="groups" element={<Groups />} />
             <Route path="invite" element={<InvitePage />} />
             <Route path="discover" element={<DiscoverPage />} />

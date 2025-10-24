@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import useUserStore from "../../store/userStore";
 import {
   Card,
@@ -7,27 +7,29 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/Card";
-import { Settings, Edit, MessageSquare, User } from "lucide-react";
+import { MessageSquare, User, UserPlus, UserMinus } from "lucide-react";
 
-export default function Profile() {
-  const navigate = useNavigate();
+export default function PublicProfile() {
+  const { userId = "" } = useParams();
   const [activeTab, setActiveTab] = useState<"posts" | "comments" | "activity">(
     "posts"
   );
+  const [followLoading, setFollowLoading] = useState(false);
 
   const {
-    me,
-    loadingMe,
+    publicProfile,
+    loadingPublic,
     error,
     statsByUserId,
-    loadMe,
-    // loadUserPosts,
-    // loadUserComments,
+    loadUserById,
+    loadUserPosts,
+    loadUserComments,
     getPostsByUserId,
     getCommentsByUserId,
+    follow,
+    unfollow,
   } = useUserStore();
 
-  const userId = me?.id || "";
   const stats = (userId && statsByUserId[userId]) || {
     postsCount: 0,
     followersCount: 0,
@@ -43,15 +45,12 @@ export default function Profile() {
   );
 
   useEffect(() => {
-    loadMe();
-  }, [loadMe]);
-
-  // useEffect(() => {
-  //   if (userId) {
-  //     loadUserPosts(userId, 1, 10);
-  //     loadUserComments(userId, 1, 10);
-  //   }
-  // }, [userId, loadUserPosts, loadUserComments]);
+    if (userId) {
+      loadUserById(userId);
+      loadUserPosts(userId, 1, 10);
+      loadUserComments(userId, 1, 10);
+    }
+  }, [userId, loadUserById, loadUserPosts, loadUserComments]);
 
   const activity = useMemo(() => {
     const postActivities = (posts || []).map((p) => ({
@@ -69,7 +68,27 @@ export default function Profile() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [posts, comments]);
 
-  if (loadingMe) {
+  const handleFollow = async () => {
+    if (!userId) return;
+    setFollowLoading(true);
+    try {
+      await follow(userId);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!userId) return;
+    setFollowLoading(true);
+    try {
+      await unfollow(userId);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  if (loadingPublic) {
     return (
       <div className="w-full animate-pulse">
         <div className="glass-card p-6 mb-6" />
@@ -86,15 +105,8 @@ export default function Profile() {
     return <div className="glass-card p-4 text-destructive">{error}</div>;
   }
 
-  if (!me) {
-    return (
-      <div className="glass-card p-6 text-center">
-        <p className="text-muted-foreground mb-4">You are not logged in.</p>
-        <button className="btn-primary" onClick={() => navigate("/login")}>
-          Go to Login
-        </button>
-      </div>
-    );
+  if (!publicProfile) {
+    return <div className="glass-card p-6">User not found.</div>;
   }
 
   return (
@@ -103,16 +115,18 @@ export default function Profile() {
       <div className="glass-card p-6">
         <div className="flex items-center gap-4">
           <img
-            src={me.profile_picture?.url || "/placeholder.svg"}
-            alt={me.name || "You"}
+            src={publicProfile.profile_picture?.url || "/placeholder.svg"}
+            alt={publicProfile.name || "User"}
             className="h-16 w-16 rounded-full object-cover border"
           />
           <div className="flex-1">
             <h2 className="text-2xl font-semibold">
-              {me.name || "Your Profile"}
+              {publicProfile.name || "Neighbour"}
             </h2>
-            {me.bio && (
-              <p className="text-sm text-muted-foreground">{me.bio}</p>
+            {publicProfile.bio && (
+              <p className="text-sm text-muted-foreground">
+                {publicProfile.bio}
+              </p>
             )}
             <div className="mt-3 flex gap-3 text-sm">
               <span className="chip">Posts {stats.postsCount}</span>
@@ -121,17 +135,22 @@ export default function Profile() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Link
-              to="/settings"
-              className="btn-secondary inline-flex items-center gap-2"
+            <button
+              className="btn-primary inline-flex items-center gap-2"
+              onClick={handleFollow}
+              disabled={followLoading}
             >
-              <Settings className="h-4 w-4" /> Settings
-            </Link>
-            <button className="btn-outline inline-flex items-center gap-2">
-              <Edit className="h-4 w-4" /> Edit
+              <UserPlus className="h-4 w-4" /> Follow
             </button>
-            <button className="btn-outline inline-flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" /> Inbox
+            <button
+              className="btn-outline inline-flex items-center gap-2"
+              onClick={handleUnfollow}
+              disabled={followLoading}
+            >
+              <UserMinus className="h-4 w-4" /> Unfollow
+            </button>
+            <button className="btn-secondary inline-flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" /> Message
             </button>
           </div>
         </div>
@@ -163,11 +182,13 @@ export default function Profile() {
       {activeTab === "posts" && (
         <Card>
           <CardHeader>
-            <CardTitle>Your Posts</CardTitle>
+            <CardTitle>
+              {publicProfile.name?.split(" ")[0] || "User"}'s Posts
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {posts.length === 0 ? (
-              <p className="text-muted-foreground">No posts yet.</p>
+              <p className="text-muted-foreground">No public posts.</p>
             ) : (
               <div className="space-y-4">
                 {posts.map((p) => (
@@ -212,11 +233,13 @@ export default function Profile() {
       {activeTab === "comments" && (
         <Card>
           <CardHeader>
-            <CardTitle>Your Comments</CardTitle>
+            <CardTitle>
+              {publicProfile.name?.split(" ")[0] || "User"}'s Comments
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {comments.length === 0 ? (
-              <p className="text-muted-foreground">No comments yet.</p>
+              <p className="text-muted-foreground">No public comments.</p>
             ) : (
               <div className="space-y-4">
                 {comments.map((c) => (
