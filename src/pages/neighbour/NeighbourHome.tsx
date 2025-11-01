@@ -38,6 +38,11 @@ export default function NeighbourHome() {
   // const [collapsed] = useState(true);
   const location = useLocation();
 
+  // Location UI state
+  const [locText, setLocText] = useState<string>(user?.location || "");
+  const [locLoading, setLocLoading] = useState<boolean>(false);
+  const [locError, setLocError] = useState<string | null>(null);
+
   const firstName = (user?.name || "Neighbour").split(" ")[0];
   const isHome = useMemo(
     () =>
@@ -76,6 +81,47 @@ export default function NeighbourHome() {
     // Refresh list after post creation
     fetchPosts(1);
     setPage(1);
+  };
+
+  // Change location handler
+  const handleChangeLocation = async () => {
+    setLocError(null);
+    setLocLoading(true);
+    try {
+      // Get browser geolocation
+      const coords = await new Promise<GeolocationCoordinates>(
+        (resolve, reject) => {
+          if (!navigator.geolocation)
+            return reject(new Error("Geolocation not supported"));
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos.coords),
+            (err) => reject(err),
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        }
+      );
+
+      const latitude = coords.latitude;
+      const longitude = coords.longitude;
+
+      const res = await api.patch("/users/profile/update-location", {
+        latitude,
+        longitude,
+      });
+      console.log(res);
+      const loc = res?.data?.data?.location || {};
+      const city = loc?.city || "";
+      const suburb = loc?.suburb || "";
+      setLocText(suburb || city);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to update location";
+      setLocError(msg);
+    } finally {
+      setLocLoading(false);
+    }
   };
 
   return (
@@ -229,74 +275,26 @@ export default function NeighbourHome() {
           <div className="text-md font-bold text-muted-foreground">
             Current location
           </div>
-          <div className="text-xl font-bold text-foreground">Doon south</div>
+          <div className="text-xl font-bold text-foreground">{locText}</div>
 
-          <button className="mt-4 px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
-            Change Location
+          <button
+            className="mt-4 px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+            onClick={handleChangeLocation}
+            disabled={locLoading}
+          >
+            {locLoading ? "Updating..." : "Change Location"}
           </button>
+          {locError && (
+            <div className="mt-2 text-xs text-red-600">{locError}</div>
+          )}
         </div>
-
-        {/* Live in Hood
-        <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
-          <div className="font-semibold text-foreground mb-3">Live in Hood</div>
-          <div className="space-y-3">
-            {[
-              {
-                title: "Neighbour is speaking",
-                subtitle: "Community Chat",
-                count: 91,
-              },
-              {
-                title: "Host is speaking",
-                subtitle: "Onboarding Series",
-                count: 70,
-              },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted" />
-                  <div>
-                    <div className="text-sm text-foreground font-medium">
-                      {item.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {item.subtitle}
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs rounded-full bg-muted px-2 py-1 text-muted-foreground">
-                  +{item.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div> */}
 
         {/* Trending section */}
         <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
           <div className="font-semibold text-foreground mb-2">
             Community Alerts
           </div>
-          {/* <div className="space-y-3">
-            {[
-              { name: "Ogiso", count: "Trending in Nigeria" },
-              { name: "Ondo", count: "7,642 posts" },
-              { name: "Chicken Republic", count: "Trending in Nigeria" },
-              { name: "Asher", count: "8,328 posts" },
-            ].map((t, idx) => (
-              <div key={idx} className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-muted-foreground">{t.count}</div>
-                  <div className="text-sm text-foreground font-medium">
-                    {t.name}
-                  </div>
-                </div>
-                <button className="text-xs text-muted-foreground hover:text-foreground">
-                  ···
-                </button>
-              </div>
-            ))}
-          </div> */}
+
           <p className="text-xs text-muted-foreground">
             No alerts for this location at the moment.
           </p>

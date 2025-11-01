@@ -12,6 +12,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   profile_picture?: string;
+  location?: string;
   // neighbour or organization
 }
 
@@ -267,6 +268,9 @@ const useAuthStore = create<AuthState>()(
               name: `${response.data.data.first_name} ${response.data.data.last_name}`,
               first_name: response.data.data.first_name,
               last_name: response.data.data.last_name,
+              location:
+                response.data.data.location.suburb ||
+                response.data.data.location.city,
               profile_picture: response.data.data.profile_picture?.url,
               referral_code: response.data.data.referral?.referral_code,
             },

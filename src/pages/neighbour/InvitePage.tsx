@@ -34,7 +34,7 @@ export default function InvitePage() {
 
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(`Join me on AreaHood! ${referralLink}`);
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/+2348166371970?text=${text}`, "_blank");
   };
 
   return referralCode ? (
@@ -98,12 +98,14 @@ export default function InvitePage() {
           </p>
         </div>
 
-        {/* Copied Toast */}
-        {copiedMessage && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass-card px-4 py-2 text-sm shadow-card">
-            {copiedMessage}
-          </div>
-        )}
+        <div>
+          {/* Copied Toast */}
+          {copiedMessage && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass-card px-4 py-2 text-sm shadow-card">
+              {copiedMessage}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   ) : (
