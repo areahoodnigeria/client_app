@@ -18,8 +18,9 @@ export interface Post {
   author: Author;
   content: string;
   media?: MediaItem[];
-  created_at: string;
-  updated_at?: string;
+  createdAt: string;
+  updatedAt?: string;
+  comments_count?: number;
 }
 
 export interface Comment {
@@ -91,7 +92,9 @@ postsClient.interceptors.response.use(
 );
 
 // ---------- Helpers ----------
-function normalizeId<T extends { id?: string; _id?: string }>(obj: T): T & { id: string } {
+function normalizeId<T extends { id?: string; _id?: string }>(
+  obj: T
+): T & { id: string } {
   const id = (obj.id || obj._id || "") as string;
   return { ...(obj as any), id } as T & { id: string };
 }
@@ -112,9 +115,7 @@ function mapComment(comment: any): Comment {
 
 function extractErrorMessage(err: any, fallback = "Request failed") {
   if (axios.isAxiosError(err)) {
-    return (
-      (err.response?.data as any)?.message || err.message || fallback
-    );
+    return (err.response?.data as any)?.message || err.message || fallback;
   }
   if (err instanceof Error) return err.message;
   return fallback;
@@ -126,21 +127,36 @@ function configWithSignal(signal?: AbortSignal): any | undefined {
 }
 
 // ---------- Posts API ----------
-export async function listPosts(params: { page?: number; limit?: number; search?: string }, signal?: AbortSignal): Promise<ApiListResponse<Post>> {
+export async function listPosts(
+  params: { page?: number; limit?: number; search?: string },
+  signal?: AbortSignal
+): Promise<ApiListResponse<Post>> {
   try {
-    const res = await postsClient.get("/posts", { params, ...configWithSignal(signal) });
+    const res = await postsClient.get("/posts", {
+      params,
+      ...configWithSignal(signal),
+    });
     const data = (res.data?.data || res.data?.posts || []) as any[];
+    console.log(data);
     const mapped = data.map(mapPost);
-    const metadata = (res.data?.metadata || res.data?.meta || {}) as PaginationMeta;
+    const metadata = (res.data?.metadata ||
+      res.data?.meta ||
+      {}) as PaginationMeta;
     return { data: mapped, metadata };
   } catch (err) {
     throw new Error(extractErrorMessage(err, "Failed to load posts"));
   }
 }
 
-export async function getPost(postId: string, signal?: AbortSignal): Promise<Post> {
+export async function getPost(
+  postId: string,
+  signal?: AbortSignal
+): Promise<Post> {
   try {
-    const res = await postsClient.get(`/posts/${postId}`, configWithSignal(signal));
+    const res = await postsClient.get(
+      `/posts/${postId}`,
+      configWithSignal(signal)
+    );
     const raw = (res.data?.data || res.data?.post) as any;
     return mapPost(raw);
   } catch (err) {
@@ -148,13 +164,17 @@ export async function getPost(postId: string, signal?: AbortSignal): Promise<Pos
   }
 }
 
-export async function createPost(content: string, mediaFiles?: FileList | File[]): Promise<Post> {
+export async function createPost(
+  content: string,
+  mediaFiles?: FileList | File[]
+): Promise<Post> {
   if (!content || !content.trim()) throw new Error("Content is required");
   try {
     const form = new FormData();
     form.append("content", content.trim());
     if (mediaFiles) {
-      const files = mediaFiles instanceof FileList ? Array.from(mediaFiles) : mediaFiles;
+      const files =
+        mediaFiles instanceof FileList ? Array.from(mediaFiles) : mediaFiles;
       files.forEach((file) => form.append("media", file));
     }
     const res = await postsClient.post("/posts/create-post", form, {
@@ -167,7 +187,10 @@ export async function createPost(content: string, mediaFiles?: FileList | File[]
   }
 }
 
-export async function updatePost(postId: string, patch: Partial<Pick<Post, "content" | "media">>): Promise<Post> {
+export async function updatePost(
+  postId: string,
+  patch: Partial<Pick<Post, "content" | "media">>
+): Promise<Post> {
   try {
     const res = await postsClient.patch(`/posts/${postId}`, patch);
     const raw = (res.data?.data || res.data?.post) as any;
@@ -187,9 +210,15 @@ export async function deletePost(postId: string): Promise<boolean> {
 }
 
 // ---------- Comments API ----------
-export async function listComments(postId: string, signal?: AbortSignal): Promise<Comment[]> {
+export async function listComments(
+  postId: string,
+  signal?: AbortSignal
+): Promise<Comment[]> {
   try {
-    const res = await postsClient.get(`/comments/${postId}`, configWithSignal(signal));
+    const res = await postsClient.get(
+      `/comments/${postId}`,
+      configWithSignal(signal)
+    );
     const data = (res.data?.data || res.data?.comments || []) as any[];
     return data.map(mapComment);
   } catch (err) {
@@ -197,18 +226,33 @@ export async function listComments(postId: string, signal?: AbortSignal): Promis
   }
 }
 
-export async function createComment(postId: string, content: string): Promise<Comment> {
+export async function createComment(
+  postId: string,
+  content: string
+): Promise<Comment> {
   if (!content || !content.trim()) throw new Error("Comment cannot be empty");
   try {
-    const res = await postsClient.post(`/comments/create-comment`, { post_id: postId, content: content.trim() });
+    const res = await postsClient.post(`/comments/create-comment`, {
+      post_id: postId,
+      content: content.trim(),
+    });
     const raw = (res.data?.data || res.data?.comment) as any;
-    return mapComment(raw || { id: Math.random().toString(36).slice(2), content: content.trim(), post_id: postId });
+    return mapComment(
+      raw || {
+        id: Math.random().toString(36).slice(2),
+        content: content.trim(),
+        post_id: postId,
+      }
+    );
   } catch (err) {
     throw new Error(extractErrorMessage(err, "Failed to create comment"));
   }
 }
 
-export async function updateComment(commentId: string, patch: Partial<Pick<Comment, "content">>): Promise<Comment> {
+export async function updateComment(
+  commentId: string,
+  patch: Partial<Pick<Comment, "content">>
+): Promise<Comment> {
   try {
     const res = await postsClient.patch(`/comments/${commentId}`, patch);
     const raw = (res.data?.data || res.data?.comment) as any;

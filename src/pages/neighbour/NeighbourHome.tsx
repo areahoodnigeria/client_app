@@ -6,33 +6,19 @@ import PostCard from "./PostCard";
 import AddPostModal from "./AddPostModal";
 import { Outlet, useLocation } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
-
-interface Author {
-  name: string;
-  profile_picture?: { url?: string } | null;
-}
-
-interface MediaItem {
-  url?: string;
-}
-
-interface Post {
-  _id: string;
-  author: Author;
-  content: string;
-  media?: MediaItem[];
-  created_at: string;
-}
+import usePostsStore from "../../store/postsStore";
+import type { PostsState } from "../../store/postsStore";
 
 export default function NeighbourHome() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+  const posts = usePostsStore((s: PostsState) => s.posts);
+  const loading = usePostsStore((s: PostsState) => s.loading);
+  const error = usePostsStore((s: PostsState) => s.error);
+  const page = usePostsStore((s: PostsState) => s.page);
+  const hasMore = usePostsStore((s: PostsState) => s.hasMore);
+  const setPage = usePostsStore((s: PostsState) => s.setPage);
+  const loadPosts = usePostsStore((s: PostsState) => s.loadPosts);
+  const loadMorePosts = usePostsStore((s: PostsState) => s.loadMorePosts);
   const [showAdd, setShowAdd] = useState(false);
-
-  const pageSize = 20;
 
   const { user } = useAuthStore();
   // const [collapsed] = useState(true);
@@ -50,37 +36,18 @@ export default function NeighbourHome() {
     [location.pathname]
   );
 
-  const fetchPosts = async (pageNum: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.get(`/posts`, {
-        params: { page: pageNum, limit: pageSize },
-      });
-
-      const data = res.data?.data || res.data?.posts || [];
-      const meta = res.data?.metadata || res.data?.meta || {};
-      console.log(data);
-
-      setPosts(data);
-      setHasMore(Boolean(meta?.has_more || meta?.hasMore));
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err?.message || "Failed to load posts"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Initial posts load
   useEffect(() => {
-    fetchPosts(page);
-  }, [page]);
+    if (posts.length === 0) {
+      loadPosts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePostCreated = () => {
     // Refresh list after post creation
-    fetchPosts(1);
     setPage(1);
+    loadPosts({ page: 1 });
   };
 
   // Change location handler
@@ -219,16 +186,27 @@ export default function NeighbourHome() {
                     No posts yet. Be the first to share!
                   </motion.div>
                 ) : (
-                  posts.map((post, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, delay: index * 0.03 }}
-                    >
-                      <PostCard post={post} />
-                    </motion.div>
-                  ))
+                  posts.map((p, index) => {
+                    const adapted = {
+                      _id: p.id || p._id || "",
+                      author: p.author,
+                      content: p.content,
+                      media: p.media,
+                      created_at: p.createdAt,
+                      updated_at: p.updatedAt,
+                      comments_count: p.comments_count || 0,
+                    };
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25, delay: index * 0.03 }}
+                      >
+                        <PostCard post={adapted} />
+                      </motion.div>
+                    );
+                  })
                 )}
               </AnimatePresence>
             )}
@@ -237,7 +215,11 @@ export default function NeighbourHome() {
             {!loading && hasMore && (
               <div className="flex justify-center">
                 <button
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => {
+                    const next = page + 1;
+                    loadMorePosts({ page: next });
+                    setPage(next);
+                  }}
                   className="px-4 py-2 rounded-full border border-border hover:bg-muted/40 text-sm"
                 >
                   Load more posts

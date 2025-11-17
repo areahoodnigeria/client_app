@@ -33,6 +33,9 @@ export interface PostsState {
   // Getters
   getPostById: (id: string) => Post | undefined;
   getCommentsByPostId: (postId: string) => Comment[];
+
+  // Pagination helpers
+  loadMorePosts: (opts?: { page?: number; limit?: number; search?: string; signal?: AbortSignal }) => Promise<void>;
 }
 
 const usePostsStore = create<PostsState>((set, get) => ({
@@ -177,6 +180,26 @@ const usePostsStore = create<PostsState>((set, get) => ({
   // Getters
   getPostById: (id: string) => get().posts.find((p) => p.id === id),
   getCommentsByPostId: (postId: string) => get().commentsByPostId[postId] || [],
+
+  // Pagination helpers
+  loadMorePosts: async (opts) => {
+    const nextPage = opts?.page ?? get().page + 1;
+    const limit = opts?.limit ?? get().limit;
+    const search = opts?.search;
+    set({ loading: true, error: null });
+    try {
+      const res: ApiListResponse<Post> = await listPosts({ page: nextPage, limit, search }, opts?.signal);
+      set({
+        posts: [...get().posts, ...res.data],
+        page: nextPage,
+        limit: limit,
+        hasMore: Boolean(res.metadata?.has_more || res.metadata?.hasMore),
+        loading: false,
+      });
+    } catch (err: any) {
+      set({ error: err.message || "Failed to load posts", loading: false });
+    }
+  },
 }));
 
 export default usePostsStore;
