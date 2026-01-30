@@ -47,8 +47,11 @@ export interface User {
   email?: string;
   username?: string;
   bio?: string;
-  profile_picture?: { url?: string } | null;
   created_at?: string;
+  first_name?: string;
+  last_name?: string;
+  profile_picture?: string;
+  location?: string;
 }
 
 export interface UserStats {

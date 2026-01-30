@@ -95,18 +95,6 @@ export default function NeighbourHome() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 relative">
       {/* Center column */}
       <div className="lg:col-span-2 space-y-4">
-        {/* Welcome header */}
-        {/* <div className="glass-card p-6 md:p-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Hey {firstName},{" "}
-            <span className="text-gradient">welcome back to your hood!</span>
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Here's what's happening in your neighborhood
-          </p>
-        </div> */}
-
-        {/* Feed or nested route content */}
         {isHome ? (
           <div className="space-y-4">
             {/* Composer box */}
