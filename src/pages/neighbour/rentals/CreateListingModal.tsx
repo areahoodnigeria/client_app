@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, MapPin, Upload } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import { createListing, type CreateListingPayload } from "../../../api/listingsApi";
 
 interface CreateListingModalProps {

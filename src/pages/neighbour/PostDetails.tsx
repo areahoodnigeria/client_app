@@ -168,8 +168,9 @@ export default function PostDetails() {
 
         <CommentModal
           open={showComment}
-          postId={currentPost.id}
+          post={currentPost}
           onClose={() => setShowComment(false)}
+          onCommentAdded={() => {}}
         />
       </motion.div>
     </div>

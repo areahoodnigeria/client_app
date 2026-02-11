@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Package, DollarSign, Tag, Info, Trash2, Edit3 } from "lucide-react";
+import { X, MapPin, Package, DollarSign, Tag, Info, Edit3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   type Listing, 
@@ -67,7 +67,7 @@ export default function OrgAddEditListingModal({
     setLoading(true);
 
     try {
-      const payload: any = {
+      const payload: CreateListingPayload | UpdateListingPayload = {
         title: formData.title,
         description: formData.description,
         category: formData.category,
@@ -83,10 +83,10 @@ export default function OrgAddEditListingModal({
       if (formData.deposit) payload.deposit = parseFloat(formData.deposit);
 
       if (isEdit && listing) {
-        await updateListing(listing._id, payload);
+        await updateListing(listing._id, payload as UpdateListingPayload);
         toast.success("Listing updated successfully!");
       } else {
-        await createListing(payload);
+        await createListing(payload as CreateListingPayload);
         toast.success("Listing created successfully!");
       }
 

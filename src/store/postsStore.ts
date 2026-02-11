@@ -67,7 +67,9 @@ const usePostsStore = create<PostsState>((set, get) => ({
         posts: res.data,
         page: page,
         limit: limit,
-        hasMore: Boolean(res.metadata?.has_more || res.metadata?.hasMore),
+        hasMore: Boolean(
+          (res.metadata?.current_page ?? page) < (res.metadata?.total_pages ?? page)
+        ),
         loading: false,
       });
     } catch (err: any) {
@@ -228,7 +230,9 @@ const usePostsStore = create<PostsState>((set, get) => ({
         posts: [...get().posts, ...res.data],
         page: nextPage,
         limit: limit,
-        hasMore: Boolean(res.metadata?.has_more || res.metadata?.hasMore),
+        hasMore: Boolean(
+          (res.metadata?.current_page ?? nextPage) < (res.metadata?.total_pages ?? nextPage)
+        ),
         loading: false,
       });
     } catch (err: any) {

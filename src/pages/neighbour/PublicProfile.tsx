@@ -12,7 +12,7 @@ import { MessageSquare, User, UserPlus, UserMinus } from "lucide-react";
 export default function PublicProfile() {
   const { userId = "" } = useParams();
   const [activeTab, setActiveTab] = useState<"posts" | "comments" | "activity">(
-    "posts"
+    "posts",
   );
   const [followLoading, setFollowLoading] = useState(false);
 
@@ -37,11 +37,11 @@ export default function PublicProfile() {
   };
   const posts = useMemo(
     () => (userId ? getPostsByUserId(userId) : []),
-    [userId, getPostsByUserId]
+    [userId, getPostsByUserId],
   );
   const comments = useMemo(
     () => (userId ? getCommentsByUserId(userId) : []),
-    [userId, getCommentsByUserId]
+    [userId, getCommentsByUserId],
   );
 
   useEffect(() => {
@@ -115,7 +115,14 @@ export default function PublicProfile() {
       <div className="glass-card p-6">
         <div className="flex items-center gap-4">
           <img
-            src={publicProfile.profile_picture?.url || "/placeholder.svg"}
+            src={(() => {
+              const pic: any = (publicProfile as any).profile_picture;
+              return (
+                (pic && typeof pic === "object"
+                  ? pic.url
+                  : publicProfile.profile_picture) || "/placeholder.svg"
+              );
+            })()}
             alt={publicProfile.name || "User"}
             className="h-16 w-16 rounded-full object-cover border"
           />

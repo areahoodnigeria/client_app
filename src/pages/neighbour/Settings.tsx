@@ -2,13 +2,10 @@ import { useState } from "react";
 import { 
   User, 
   Bell, 
-  Lock, 
   Shield, 
   Eye, 
   Smartphone,
-  ChevronRight,
   LogOut,
-  Moon,
   Globe
 } from "lucide-react";
 

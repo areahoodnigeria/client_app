@@ -4,7 +4,7 @@ import Loader from "./Loader";
 
 interface ProtectedRouteProps {
   redirectPath?: string;
-  allowedTypes?: ("neighbour" | "organization")[];
+  allowedTypes?: ("neighbour" | "organization" | "admin")[];
 }
 
 const ProtectedRoute = ({
@@ -25,7 +25,11 @@ const ProtectedRoute = ({
   }
 
   // Restrict by user type when provided
-  if (allowedTypes && userType && !allowedTypes.includes(userType)) {
+  if (
+    allowedTypes &&
+    userType &&
+    !allowedTypes.includes(userType as "neighbour" | "organization" | "admin")
+  ) {
     // Redirect to the correct dashboard based on current user type
     // const target = userType === "organization" ? "/org/dashboard" : "/neighbour/dashboard";
     return <Navigate to={"/dashboard"} replace />;
