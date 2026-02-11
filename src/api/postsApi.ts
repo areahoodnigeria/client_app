@@ -1,5 +1,5 @@
-import axios, { AxiosError } from "axios";
-import { api_url } from "../utils/constants";
+import axios from "axios";
+import api from "./api"; // Use shared api instance
 
 // ---------- Types ----------
 export interface Author {
@@ -18,9 +18,13 @@ export interface Post {
   author: Author;
   content: string;
   media?: MediaItem[];
-  createdAt: string;
-  updatedAt?: string;
+  created_at: string; // Unified name
+  updated_at?: string; // Unified name
+  createdAt?: string; // Backend raw
+  updatedAt?: string; // Backend raw
   comments_count?: number;
+  likes_count?: number;
+  liked?: boolean;
 }
 
 export interface Comment {
@@ -28,89 +32,58 @@ export interface Comment {
   _id?: string;
   post_id?: string;
   content: string;
-  author?: { name?: string } | null;
+  author?: { 
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    profile_picture?: { url?: string } | null;
+  } | null;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface PaginationMeta {
-  page?: number;
-  limit?: number;
-  total_pages?: number;
-  totalPages?: number;
-  has_more?: boolean;
-  hasMore?: boolean;
+  current_page: number;
+  total_pages: number;
+  total_items: number;
+  per_page: number;
 }
 
 export interface ApiListResponse<T> {
   data: T[];
-  metadata?: PaginationMeta;
+  metadata: PaginationMeta;
 }
-
-export interface ApiItemResponse<T> {
-  data: T;
-}
-
-// ---------- Axios client with interceptors ----------
-const postsClient = axios.create({
-  baseURL: api_url,
-  headers: { "Content-Type": "application/json" },
-});
-
-postsClient.interceptors.request.use((config) => {
-  // Attach auth token
-  const token = localStorage.getItem("areaHoodToken");
-  if (token) {
-    if (config.headers) {
-      const headers: any = config.headers as any;
-      if (typeof headers.set === "function") {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-    } else {
-      config.headers = { Authorization: `Bearer ${token}` } as any;
-    }
-  }
-  return config;
-});
-
-postsClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    const status = error.response?.status;
-    if (status === 401 || status === 403) {
-      try {
-        localStorage.clear();
-      } catch (_) {}
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 // ---------- Helpers ----------
-function normalizeId<T extends { id?: string; _id?: string }>(
-  obj: T
-): T & { id: string } {
-  const id = (obj.id || obj._id || "") as string;
-  return { ...(obj as any), id } as T & { id: string };
+
+function normalizeId<T>(obj: any): T {
+  if (!obj) return obj;
+  const newObj = { ...obj };
+  if (!newObj.id && newObj._id) newObj.id = newObj._id;
+  return newObj as T;
 }
 
 function mapPost(post: any): Post {
   const p = normalizeId<Post>(post);
   return {
     ...p,
-    author: p.author || { name: "Neighbour" },
-    media: p.media || [],
+    author: post.author || { name: "Neighbour" },
+    created_at: p.created_at || post.createdAt || new Date().toISOString(),
+    updated_at: p.updated_at || post.updatedAt,
+    comments_count: post.comments_count || 0,
+    likes_count: post.likes_count || 0,
+    liked: post.liked || false,
   };
 }
 
 function mapComment(comment: any): Comment {
   const c = normalizeId<Comment>(comment);
-  return c;
+  return {
+    ...c,
+    author: comment.author || { name: "Neighbour" },
+    created_at: c.created_at || comment.createdAt || new Date().toISOString(),
+    updated_at: c.updated_at || comment.updatedAt,
+  };
 }
 
 function extractErrorMessage(err: any, fallback = "Request failed") {
@@ -132,7 +105,7 @@ export async function listPosts(
   signal?: AbortSignal
 ): Promise<ApiListResponse<Post>> {
   try {
-    const res = await postsClient.get("/posts", {
+    const res = await api.get("/posts", {
       params,
       ...configWithSignal(signal),
     });
@@ -153,7 +126,7 @@ export async function getPost(
   signal?: AbortSignal
 ): Promise<Post> {
   try {
-    const res = await postsClient.get(
+    const res = await api.get(
       `/posts/${postId}`,
       configWithSignal(signal)
     );
@@ -177,7 +150,7 @@ export async function createPost(
         mediaFiles instanceof FileList ? Array.from(mediaFiles) : mediaFiles;
       files.forEach((file) => form.append("media", file));
     }
-    const res = await postsClient.post("/posts/create-post", form, {
+    const res = await api.post("/posts/create-post", form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     const raw = (res.data?.data || res.data?.post) as any;
@@ -192,7 +165,7 @@ export async function updatePost(
   patch: Partial<Pick<Post, "content" | "media">>
 ): Promise<Post> {
   try {
-    const res = await postsClient.patch(`/posts/${postId}`, patch);
+    const res = await api.patch(`/posts/${postId}`, patch);
     const raw = (res.data?.data || res.data?.post) as any;
     return mapPost(raw);
   } catch (err) {
@@ -202,10 +175,21 @@ export async function updatePost(
 
 export async function deletePost(postId: string): Promise<boolean> {
   try {
-    await postsClient.delete(`/posts/${postId}`);
+    await api.delete(`/posts/${postId}`);
     return true;
   } catch (err) {
     throw new Error(extractErrorMessage(err, "Failed to delete post"));
+  }
+}
+
+export async function toggleLike(
+  postId: string
+): Promise<{ liked: boolean; likes_count: number }> {
+  try {
+    const res = await api.patch(`/posts/${postId}/like`);
+    return res.data?.data;
+  } catch (err) {
+    throw new Error(extractErrorMessage(err, "Failed to toggle like"));
   }
 }
 
@@ -215,9 +199,12 @@ export async function listComments(
   signal?: AbortSignal
 ): Promise<Comment[]> {
   try {
-    const res = await postsClient.get(
-      `/comments/${postId}`,
-      configWithSignal(signal)
+    const res = await api.get(
+      `/comments/post-comments`,
+      {
+        ...configWithSignal(signal),
+        params: { post_id: postId, page: 1, limit: 100 }
+      }
     );
     const data = (res.data?.data || res.data?.comments || []) as any[];
     return data.map(mapComment);
@@ -232,7 +219,7 @@ export async function createComment(
 ): Promise<Comment> {
   if (!content || !content.trim()) throw new Error("Comment cannot be empty");
   try {
-    const res = await postsClient.post(`/comments/create-comment`, {
+    const res = await api.post(`/comments/create-comment`, {
       post_id: postId,
       content: content.trim(),
     });
@@ -254,7 +241,7 @@ export async function updateComment(
   patch: Partial<Pick<Comment, "content">>
 ): Promise<Comment> {
   try {
-    const res = await postsClient.patch(`/comments/${commentId}`, patch);
+    const res = await api.patch(`/comments/${commentId}`, patch);
     const raw = (res.data?.data || res.data?.comment) as any;
     return mapComment(raw);
   } catch (err) {
@@ -264,7 +251,7 @@ export async function updateComment(
 
 export async function deleteComment(commentId: string): Promise<boolean> {
   try {
-    await postsClient.delete(`/comments/${commentId}`);
+    await api.delete(`/comments/${commentId}`);
     return true;
   } catch (err) {
     throw new Error(extractErrorMessage(err, "Failed to delete comment"));

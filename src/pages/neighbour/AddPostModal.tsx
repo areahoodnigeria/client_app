@@ -1,13 +1,17 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Image, AlertCircle, Loader2 } from "lucide-react";
 import api from "../../api/api";
+import { createGroupPost } from "../../api/groupsApi";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onCreated: () => void;
+  groupId?: string;
 }
 
-export default function AddPostModal({ open, onClose, onCreated }: Props) {
+export default function AddPostModal({ open, onClose, onCreated, groupId }: Props) {
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,68 +29,132 @@ export default function AddPostModal({ open, onClose, onCreated }: Props) {
       const form = new FormData();
       form.append("content", content.trim());
       if (mediaFiles && mediaFiles.length > 0) {
-        Array.from(mediaFiles).forEach((file) => form.append("media", file));
+        Array.from(mediaFiles).forEach((file) => form.append("media", file as any));
       }
-      await api.post("/posts/create-post", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+
+      if (groupId) {
+        form.append("group_id", groupId);
+        await createGroupPost(form);
+      } else {
+        await api.post("/posts/create-post", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      
       setContent("");
       setMediaFiles(null);
       onCreated();
       onClose();
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to create post");
+      setError(err?.response?.data?.message || err?.message || "Failed to create post");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full max-w-lg mx-4 bg-white/90 dark:bg-black/40 backdrop-blur-md border border-border rounded-xl shadow-card p-6">
-        <div className="text-lg font-semibold mb-4">Create Post</div>
-        {error && (
-          <div className="mb-3 text-red-700 bg-red-50 border border-red-200 rounded p-2 text-sm">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's happening in your hood?"
-            className="w-full h-28 px-3 py-2 rounded-lg bg-background/60 border border-border text-sm"
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-background/60 backdrop-blur-xl"
+            onClick={onClose}
           />
-          <div>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => setMediaFiles(e.target.files)}
-              className="text-sm"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/40"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {loading ? "Posting..." : "Post"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-xl glass-card border-white/40 shadow-premium p-0 overflow-hidden"
+          >
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-2xl font-black text-foreground tracking-tight">{groupId ? "Group Initiative" : "New Perspective"}</h2>
+                  <p className="text-sm font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Share with your neighborhood</p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-3 rounded-2xl hover:bg-white/40 text-muted-foreground hover:text-foreground transition-all duration-300"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold flex items-center gap-3"
+                >
+                  <AlertCircle className="h-5 w-5" />
+                  {error}
+                </motion.div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary-glow/20 rounded-3xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200" />
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    autoFocus
+                    placeholder={groupId ? "What's the update for the group?" : "Broadcast to your hood..."}
+                    className="relative w-full h-48 p-6 rounded-2xl bg-white/40 backdrop-blur-md border border-white/40 text-foreground placeholder:text-muted-foreground/60 outline-none resize-none font-medium text-lg focus:bg-white/60 transition-all duration-300"
+                  />
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer group relative">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => setMediaFiles(e.target.files)}
+                      className="hidden"
+                    />
+                    <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/40 border border-white/40 hover:bg-white/60 text-foreground transition-all duration-300 shadow-sm">
+                      <Image className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-bold">Attach Media</span>
+                    </div>
+                  </label>
+                  {mediaFiles && mediaFiles.length > 0 && (
+                    <motion.span 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="text-sm font-black text-primary bg-primary/10 px-4 py-1.5 rounded-full"
+                    >
+                      {mediaFiles.length} item{mediaFiles.length > 1 ? 's' : ''} ready
+                    </motion.span>
+                  )}
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={loading}
+                    className="px-10 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg shadow-glow hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span>Broadcasting...</span>
+                      </>
+                    ) : (
+                      "Share Now"
+                    )}
+                  </motion.button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

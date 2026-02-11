@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
   User,
@@ -11,8 +11,8 @@ import {
   UserCircle2,
   LogOut,
   MapPin,
+  Wallet,
 } from "lucide-react";
-import useAuthStore from "../../store/authStore";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -26,85 +26,132 @@ export default function Sidebar({
   collapsed = false,
   links,
   bottomLinks,
-  topOffset = 56,
 }: SidebarProps) {
-  const { user, userType } = useAuthStore();
-  const displayName = user?.name || "User";
   const [hovering, setHovering] = useState(false);
 
   return (
     <motion.aside
-      initial={{ x: -20, opacity: 0 }}
+      initial={{ x: -80, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      className={`fixed left-0 bottom-0 z-20 border-r border-border/50 backdrop-blur-md bg-white/70 dark:bg-black/30 transition-all ${
-        collapsed ? (hovering ? "w-64" : "w-10 md:w-16") : "w-64"
+      className={`fixed left-4 top-4 bottom-4 z-50 rounded-2xl border border-white/40 glass-panel transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        collapsed ? (hovering ? "w-64" : "w-10 md:w-20") : "w-64"
       }`}
-      style={{ top: topOffset }}
     >
-      <div className="px-4 py-3 h-16">
-        <div className="flex items-center gap-3">
-          <div className="hidden md:block h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-inner" />
-          {(!collapsed || hovering) && (
-            <div className="text-sm">
-              <div className="font-semibold leading-tight">{displayName}</div>
-              <div className="text-muted-foreground leading-tight">
-                {userType}
+      <div className="flex flex-col h-full py-6">
+        <div className="px-3 h-12 mb-8 flex items-center overflow-hidden">
+            <div className="flex items-center gap-4 px-3">
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-gradient-to-tr from-primary to-primary-glow shadow-glow flex items-center justify-center text-white text-xl font-bold">
+                A
               </div>
+              <AnimatePresence>
+                {(hovering || !collapsed) && (
+                  <motion.span 
+                    initial={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                    className="font-black text-xl tracking-tighter text-foreground whitespace-nowrap"
+                  >
+                    AreaHood
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </div>
-          )}
         </div>
+
+        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto no-scrollbar">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end
+              className={({ isActive }) =>
+                `group relative flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 overflow-hidden ${
+                  isActive
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/40"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active"
+                      className="absolute inset-0 bg-primary/10 border-l-4 border-primary"
+                      transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                    />
+                  )}
+                  <span className={`relative z-10 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                    {link.icon}
+                  </span>
+                  {(!collapsed || hovering) && (
+                    <span className="relative z-10 text-sm tracking-tight">{link.label}</span>
+                  )}
+                  {isActive && (!collapsed || hovering) && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
+                    />
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        {bottomLinks && bottomLinks.length > 0 && (
+          <div className="px-3 mt-4 border-t border-white/20 pt-4">
+            <nav className="space-y-1.5">
+              {bottomLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end
+                  className={({ isActive }) =>
+                    `group relative flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ${
+                      isActive
+                        ? "text-primary font-semibold"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/40"
+                    }`
+                  }
+                >
+                   {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <motion.div
+                          layoutId="sidebar-active-bottom"
+                          className="absolute inset-0 bg-primary/10 border-l-4 border-primary rounded-xl"
+                          transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                        />
+                      )}
+                      <span className={`relative z-10 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                        {link.icon}
+                      </span>
+                  <AnimatePresence mode="wait">
+                    {(hovering || !collapsed) && (
+                      <motion.span 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="relative z-10 text-sm tracking-tight whitespace-nowrap"
+                      >
+                        {link.label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+        )}
       </div>
-
-      <nav className="mt-2 space-y-1">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end
-            className={({ isActive }) =>
-              `group flex items-center gap-3 px-2 md:px-4 py-2 text-sm transition-colors ${
-                isActive
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
-              }`
-            }
-          >
-            <span className="h-5 w-5">{link.icon}</span>
-            {(!collapsed || hovering) && <span>{link.label}</span>}
-            <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-              →
-            </span>
-          </NavLink>
-        ))}
-      </nav>
-
-      {bottomLinks && bottomLinks.length > 0 && (
-        <div className="absolute left-0 right-0 bottom-0">
-          <div className="mt-2 border-t border-border/50" />
-          <nav className="space-y-1 py-2">
-            {bottomLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end
-                className={({ isActive }) =>
-                  `group flex items-center gap-3 px-2 md:px-4 py-2 text-sm transition-colors ${
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
-                  }`
-                }
-              >
-                <span className="h-5 w-5">{link.icon}</span>
-                {(!collapsed || hovering) && <span>{link.label}</span>}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-      )}
     </motion.aside>
   );
 }
@@ -120,6 +167,11 @@ export const neighbourLinks = [
     to: "/dashboard/rentals",
     label: "Rentals",
     icon: <Package className="h-5 w-5" />,
+  },
+  {
+    to: "/dashboard/wallet",
+    label: "Wallet",
+    icon: <Wallet className="h-5 w-5" />,
   },
   {
     to: "/dashboard/groups",
@@ -155,6 +207,11 @@ export const neighbourBottomLinks = [
 
 export const organizationLinks = [
   {
+    to: "/dashboard",
+    label: "Business Dashboard",
+    icon: <Home className="h-5 w-5" />,
+  },
+  {
     to: "/dashboard/business-profile",
     label: "Business Profile",
     icon: <Building2 className="h-5 w-5" />,
@@ -174,9 +231,13 @@ export const organizationLinks = [
     label: "Notifications",
     icon: <Bell className="h-5 w-5" />,
   },
+];
+
+export const organizationBottomLinks = [
   {
     to: "/dashboard/settings",
     label: "Settings",
     icon: <Settings className="h-5 w-5" />,
   },
+  { to: "/logout", label: "Logout", icon: <LogOut className="h-5 w-5" /> },
 ];

@@ -13,6 +13,7 @@ interface User {
   last_name?: string;
   profile_picture?: string;
   location?: string;
+  createdAt?: string;
   // neighbour or organization
 }
 
@@ -31,7 +32,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  userType: "neighbour" | "organization" | null;
+  userType: "neighbour" | "organization" | "admin" | null;
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
@@ -54,7 +55,7 @@ interface AuthState {
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
-  getUserType: () => "neighbour" | "organization" | null;
+  getUserType: () => "neighbour" | "organization" | "admin" | null;
 }
 
 // Create axios instance with default config
@@ -102,10 +103,18 @@ const useAuthStore = create<AuthState>()(
           const normalizedType =
             String(rawType).toLowerCase() === "organization"
               ? "organization"
+              : String(rawType).toLowerCase() === "admin"
+              ? "admin"
               : "neighbour";
 
+          const userData = response.data.data.user;
           set({
-            user: response.data.user,
+            user: {
+              id: userData?._id || userData?.id || "",
+              email: userData?.email || "",
+              name: userData?.name || `${userData?.first_name} ${userData?.last_name}` || "",
+              ...userData
+            },
             token: response.data.data.token,
             isAuthenticated: true,
             isLoading: false,
@@ -180,7 +189,7 @@ const useAuthStore = create<AuthState>()(
               // Store email temporarily for verification
               user: { id: "", email, name: `${firstName} ${lastName}` } as User,
               userType:
-                accountType === "organization" ? "organization" : "neighbour",
+                accountType === "organization" ? "organization" : accountType === "admin" ? "admin" : "neighbour",
             });
           }
           localStorage.setItem("verificationEmail", email);
@@ -259,20 +268,22 @@ const useAuthStore = create<AuthState>()(
             .getItem("auth-storage")
             ?.includes("organization")
             ? "organization"
+            : localStorage.getItem("auth-storage")?.includes("admin")
+            ? "admin"
             : "neighbour";
 
+          const userData = response.data.data;
           set({
             user: {
-              id: response.data.data._id,
-              email: response.data.data.email,
-              name: `${response.data.data.first_name} ${response.data.data.last_name}`,
-              first_name: response.data.data.first_name,
-              last_name: response.data.data.last_name,
-              location:
-                response.data.data.location.suburb ||
-                response.data.data.location.city,
-              profile_picture: response.data.data.profile_picture?.url,
-              referral_code: response.data.data.referral?.referral_code,
+              id: userData._id || userData.id,
+              email: userData.email,
+              name: userData.first_name ? `${userData.first_name} ${userData.last_name || ""}`.trim() : userData.name,
+              first_name: userData.first_name,
+              last_name: userData.last_name,
+              location: userData.location ? (userData.location.suburb || userData.location.city || userData.location.full_address || userData.location.address) : "",
+              profile_picture: userData.profile_picture?.url,
+              referral_code: userData.referral?.referral_code,
+              createdAt: userData.createdAt || userData.created_at,
             },
             isAuthenticated: true,
             isLoading: false,
@@ -313,6 +324,7 @@ const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage", // name of the item in the storage
       partialize: (state) => ({
+        user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
         userType: state.userType,

@@ -1,4 +1,5 @@
 import "./App.css";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Index from "./pages/Index";
@@ -23,6 +24,8 @@ import { useEffect } from "react";
 import useAuthStore from "./store/authStore";
 import DashboardRouter from "./pages/DashboardRouter.tsx";
 
+import SmoothScroll from "./components/SmoothScroll";
+
 function App() {
   const { token, user, fetchUser } = useAuthStore();
   useEffect(() => {
@@ -36,37 +39,40 @@ function App() {
   }, [token, user, fetchUser]);
   return (
     <BrowserRouter>
-      <Routes>
-        {/* <Route element={<Layout />}> */}
-        <Route path="/" element={<Index />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verification" element={<Verification />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <SmoothScroll>
+        <Routes>
+          {/* <Route element={<Layout />}> */}
+          <Route path="/" element={<Index />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verification" element={<Verification />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route element={<ProtectedRoute />}>
-          {/* Single dashboard entry */}
-          <Route path="/dashboard/*" element={<DashboardRouter />} />
-        </Route>
+          <Route element={<ProtectedRoute />}>
+            {/* Single dashboard entry */}
+            <Route path="/dashboard/*" element={<DashboardRouter />} />
+          </Route>
 
-        {/* Common */}
-        <Route element={<ProtectedRoute redirectPath="/login" />}>
-          <Route path="/logout" element={<Logout />} />
-        </Route>
-        <Route path="/features" element={<Features />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/help" element={<Help />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/guidelines" element={<Guidelines />} />
-        <Route path="/safety" element={<Safety />} />
-        <Route path="/careers" element={<Careers />} />
-        <Route path="/loading" element={<Loader />} />
-        {/* </Route> */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* Common */}
+          <Route element={<ProtectedRoute redirectPath="/login" />}>
+            <Route path="/logout" element={<Logout />} />
+          </Route>
+          <Route path="/features" element={<Features />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/guidelines" element={<Guidelines />} />
+          <Route path="/safety" element={<Safety />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/loading" element={<Loader />} />
+          {/* </Route> */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </SmoothScroll>
+      <Toaster />
     </BrowserRouter>
   );
 }

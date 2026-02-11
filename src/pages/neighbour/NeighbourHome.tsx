@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Image, Smile, MapPin, Link2 } from "lucide-react";
+import { Image, Smile, MapPin, Link2, Loader2, Bell } from "lucide-react";
 import api from "../../api/api";
 import PostCard from "./PostCard";
 import AddPostModal from "./AddPostModal";
@@ -97,61 +97,77 @@ export default function NeighbourHome() {
       <div className="lg:col-span-2 space-y-4">
         {isHome ? (
           <div className="space-y-4">
-            {/* Composer box */}
-            <div className="glass-card p-4 md:p-5 border-b border-border">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-foreground overflow-clip">
-                  {(user && (
-                    <img
-                      src={user.profile_picture || ""}
-                      alt={user.name || ""}
-                      srcSet={user.profile_picture || ""}
-                    />
-                  )) ||
-                    firstName[0]?.toUpperCase()}
+            {/* Composer box - High-end Glassmorphism */}
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="glass-card p-6 border-white/40 mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative h-12 w-12 rounded-2xl bg-gradient-to-br from-muted to-white/40 flex items-center justify-center text-lg font-bold text-foreground overflow-clip border border-white/60 shadow-sm">
+                    {(user && user.profile_picture ? (
+                      <img
+                        src={user.profile_picture || ""}
+                        alt={user.name || ""}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-primary">{firstName[0]?.toUpperCase()}</span>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex-1">
-                  <div className="rounded-xl border border-border bg-white/60 dark:bg-black/30">
+                  <div className="rounded-2xl border border-white/40 bg-white/40 backdrop-blur-md group-focus-within:bg-white/60 transition-all duration-300">
                     <textarea
                       placeholder={`Hey ${firstName}, what's happening in your hood?`}
-                      className="w-full bg-transparent p-3 md:p-4 text-foreground placeholder:text-muted-foreground outline-none resize-none"
+                      className="w-full bg-transparent p-4 text-foreground placeholder:text-muted-foreground/60 outline-none resize-none font-medium text-base"
                       rows={3}
                       readOnly
                       onClick={() => setShowAdd(true)}
                     />
                   </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      <Image className="h-5 w-5" />
-                      <Smile className="h-5 w-5" />
-                      <MapPin className="h-5 w-5" />
-                      <Link2 className="h-5 w-5" />
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-muted-foreground/60">
+                      <motion.button whileHover={{ scale: 1.1, color: "var(--primary)" }} onClick={() => setShowAdd(true)}><Image className="h-5 w-5" /></motion.button>
+                      <motion.button whileHover={{ scale: 1.1, color: "var(--primary)" }} onClick={() => setShowAdd(true)}><Smile className="h-5 w-5" /></motion.button>
+                      <motion.button whileHover={{ scale: 1.1, color: "var(--primary)" }} onClick={() => setShowAdd(true)}><MapPin className="h-5 w-5" /></motion.button>
+                      <motion.button whileHover={{ scale: 1.1, color: "var(--primary)" }} onClick={() => setShowAdd(true)}><Link2 className="h-5 w-5" /></motion.button>
                     </div>
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setShowAdd(true)}
-                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold shadow-glow hover:bg-primary/90 transition-all"
                     >
-                      Post
-                    </button>
+                      Share thought
+                    </motion.button>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Loader / Error */}
             {loading && (
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="glass-card p-5 animate-pulse">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="h-10 w-10 rounded-full bg-muted" />
-                      <div className="space-y-2">
-                        <div className="h-3 w-32 bg-muted rounded" />
-                        <div className="h-3 w-20 bg-muted rounded" />
+                  <div key={i} className="glass-card p-8 border-white/20 animate-pulse">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="h-12 w-12 rounded-2xl bg-muted/40" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-4 w-1/4 bg-muted/40 rounded-lg" />
+                        <div className="h-3 w-1/6 bg-muted/40 rounded-lg" />
                       </div>
                     </div>
-                    <div className="h-4 w-full bg-muted rounded" />
-                    <div className="h-4 w-3/4 bg-muted rounded mt-2" />
+                    <div className="space-y-3">
+                      <div className="h-4 w-full bg-muted/40 rounded-lg" />
+                      <div className="h-4 w-2/3 bg-muted/40 rounded-lg" />
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-white/10 flex gap-4">
+                       <div className="h-10 w-24 bg-muted/40 rounded-xl" />
+                       <div className="h-10 w-24 bg-muted/40 rounded-xl" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -176,13 +192,17 @@ export default function NeighbourHome() {
                 ) : (
                   posts.map((p, index) => {
                     const adapted = {
-                      _id: p.id || p._id || "",
-                      author: p.author,
-                      content: p.content,
-                      media: p.media,
-                      created_at: p.createdAt,
-                      updated_at: p.updatedAt,
-                      comments_count: p.comments_count || 0,
+                        ...p,
+                        id: p.id,
+                        _id: p.id || p._id || "",
+                        author: p.author,
+                        content: p.content,
+                        media: p.media,
+                        created_at: p.createdAt || p.created_at || new Date().toISOString(),
+                        updated_at: p.updatedAt,
+                        likes_count: p.likes_count || 0,
+                        liked: p.liked || false,
+                        comments_count: p.comments_count || 0,
                     };
                     return (
                       <motion.div
@@ -239,36 +259,54 @@ export default function NeighbourHome() {
       </div>
 
       {/* Right panel */}
-      <div className="space-y-4 sticky top-36 self-start">
-        {/* Upgrade card */}
-        <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
-          <div className="text-md font-bold text-muted-foreground">
-            Current location
+      <div className="space-y-6 sticky top-28 self-start hidden lg:block">
+        {/* Location card */}
+        <motion.div 
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="glass-card p-6 border-white/40 shadow-premium"
+        >
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-4">
+            <MapPin className="h-4 w-4" />
+            <span>Presence</span>
           </div>
-          <div className="text-xl font-bold text-foreground">{locText}</div>
+          <div className="text-2xl font-black text-foreground tracking-tight leading-tight mb-6">
+            {locText || "Finding your hood..."}
+          </div>
 
-          <button
-            className="mt-4 px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-3 rounded-xl bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-all border border-primary/20 flex items-center justify-center gap-2 group disabled:opacity-50"
             onClick={handleChangeLocation}
             disabled={locLoading}
           >
-            {locLoading ? "Updating..." : "Change Location"}
-          </button>
+            {locLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4 group-hover:animate-bounce" />}
+            {locLoading ? "Updating..." : "Relocate"}
+          </motion.button>
           {locError && (
-            <div className="mt-2 text-xs text-red-600">{locError}</div>
+            <div className="mt-3 text-xs text-red-500 font-medium px-2">{locError}</div>
           )}
-        </div>
+        </motion.div>
 
-        {/* Trending section */}
-        <div className="bg-white/70 dark:bg-black/30 backdrop-blur-md border border-border rounded-xl shadow-card p-5">
-          <div className="font-semibold text-foreground mb-2">
-            Community Alerts
+        {/* Community Alerts */}
+        <motion.div 
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="glass-panel p-6 border-white/40 shadow-premium rounded-2xl bg-white/40"
+        >
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-4">
+            <Bell className="h-4 w-4" />
+            <span>Alerts</span>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            No alerts for this location at the moment.
-          </p>
-        </div>
+          <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 border-dashed text-center">
+            <p className="text-sm font-medium text-muted-foreground/80">
+              Your neighborhood is currently serene. No active alerts.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

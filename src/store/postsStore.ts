@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Post, Comment, ApiListResponse } from "../api/postsApi";
-import { listPosts, getPost, createPost, updatePost, deletePost, listComments, createComment, updateComment, deleteComment } from "../api/postsApi";
+import { listPosts, getPost, createPost, updatePost, deletePost, toggleLike, listComments, createComment, updateComment, deleteComment } from "../api/postsApi";
 
 export interface PostsState {
   posts: Post[];
@@ -24,6 +24,7 @@ export interface PostsState {
   createPost: (content: string, mediaFiles?: FileList | File[]) => Promise<Post>;
   updatePost: (postId: string, patch: Partial<Pick<Post, "content" | "media">>) => Promise<Post>;
   deletePost: (postId: string) => Promise<void>;
+  toggleLike: (postId: string) => Promise<void>;
 
   loadComments: (postId: string, signal?: AbortSignal) => Promise<void>;
   addComment: (postId: string, content: string) => Promise<Comment>;
@@ -60,6 +61,8 @@ const usePostsStore = create<PostsState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res: ApiListResponse<Post> = await listPosts({ page, limit, search }, opts?.signal);
+      console.log("[postsStore] loadPosts - received posts from API:", res.data);
+      console.log("[postsStore] loadPosts - first post id:", res.data[0]?.id, "_id:", res.data[0]?._id);
       set({
         posts: res.data,
         page: page,
@@ -106,6 +109,38 @@ const usePostsStore = create<PostsState>((set, get) => ({
       posts: get().posts.filter((p) => p.id !== postId),
       currentPost: get().currentPost?.id === postId ? null : get().currentPost,
     });
+  },
+
+  toggleLike: async (postId) => {
+    // Optimistic update
+    const previousPosts = get().posts;
+    set({
+      posts: previousPosts.map((p) => {
+        if (p.id === postId) {
+          const isLiking = !p.liked;
+          return {
+            ...p,
+            liked: isLiking,
+            likes_count: (p.likes_count || 0) + (isLiking ? 1 : -1),
+          };
+        }
+        return p;
+      }),
+    });
+
+    try {
+      const result = await toggleLike(postId);
+      set({
+        posts: get().posts.map((p) =>
+          p.id === postId
+            ? { ...p, liked: result.liked, likes_count: result.likes_count }
+            : p
+        ),
+      });
+    } catch (err: any) {
+      // Revert on error
+      set({ posts: previousPosts, error: err.message || "Failed to toggle like" });
+    }
   },
 
   loadComments: async (postId, signal) => {

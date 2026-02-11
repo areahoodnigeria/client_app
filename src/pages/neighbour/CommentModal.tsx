@@ -1,15 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { X, AlertCircle, Loader2 } from "lucide-react";
 import usePostsStore from "../../store/postsStore";
 
 interface CommentModalProps {
   open: boolean;
-  postId: string;
   onClose: () => void;
-  onCommentCreated?: (comment: { id: string; content: string }) => void;
+  post: { id: string; _id?: string; [key: string]: any }; // Allow flexible post object
+  onCommentAdded: () => void;
+  customSubmitFn?: (content: string) => Promise<any>;
 }
 
-export default function CommentModal({ open, postId, onClose, onCommentCreated }: CommentModalProps) {
+export default function CommentModal({
+  open,
+  onClose,
+  post,
+  onCommentAdded,
+  customSubmitFn
+}: CommentModalProps) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +27,7 @@ export default function CommentModal({ open, postId, onClose, onCommentCreated }
 
   useEffect(() => {
     if (open) {
-      const t = setTimeout(() => textareaRef.current?.focus(), 50);
+      const t = setTimeout(() => textareaRef.current?.focus(), 100);
       const handleEsc = (e: KeyboardEvent) => {
         if (e.key === "Escape") onClose();
       };
@@ -34,18 +42,23 @@ export default function CommentModal({ open, postId, onClose, onCommentCreated }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) {
-      setError("Comment cannot be empty");
+      setError("Discussion content is required");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const created = await addComment(postId, content.trim());
+      if (customSubmitFn) {
+        await customSubmitFn(content.trim());
+      } else {
+        await addComment(post.id || post._id!, content.trim());
+      }
+      
       setContent("");
-      onCommentCreated?.({ id: created.id, content: created.content });
+      if (onCommentAdded) onCommentAdded();
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Failed to post comment");
+      setError(err?.message || "Failed to post observation");
     } finally {
       setLoading(false);
     }
@@ -54,53 +67,75 @@ export default function CommentModal({ open, postId, onClose, onCommentCreated }
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50" aria-hidden={!open}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-background/60 backdrop-blur-xl"
             onClick={onClose}
           />
           <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="comment-modal-title"
-            aria-describedby="comment-modal-desc"
-            className="relative mx-auto w-full max-w-lg px-4"
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-xl glass-card border-white/40 shadow-premium p-0 overflow-hidden"
           >
-            <div className="mt-24 bg-white/90 dark:bg_black/40 backdrop-blur-md border border-border rounded-xl shadow-card p-6">
-              <div id="comment-modal-title" className="text-lg font-semibold mb-1">Add a comment</div>
-              <div id="comment-modal-desc" className="text-sm text-muted-foreground mb-4">Share your thoughts with neighbours</div>
-              <form onSubmit={handleSubmit}>
-                <textarea
-                  ref={textareaRef}
-                  className="w-full h-24 p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                  placeholder="Write a comment..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                />
-                {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
-                <div className="mt-4 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/40"
-                    onClick={onClose}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
-                  <button
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-2xl font-black text-foreground tracking-tight">Contributing Observation</h2>
+                  <p className="text-sm font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Join the community discussion</p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-3 rounded-2xl hover:bg-white/40 text-muted-foreground hover:text-foreground transition-all duration-300"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold flex items-center gap-3"
+                >
+                  <AlertCircle className="h-5 w-5" />
+                  {error}
+                </motion.div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary-glow/20 rounded-3xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200" />
+                  <textarea
+                    ref={textareaRef}
+                    className="relative w-full h-40 p-6 rounded-2xl bg-white/40 backdrop-blur-md border border-white/40 text-foreground placeholder:text-muted-foreground/60 outline-none resize-none font-medium text-lg focus:bg-white/60 transition-all duration-300"
+                    placeholder="Wring your perspective..."
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex justify-end pt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50"
                     disabled={loading}
+                    className="px-10 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg shadow-glow hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
                   >
-                    {loading ? "Posting..." : "Post"}
-                  </button>
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span>Publishing...</span>
+                      </>
+                    ) : (
+                      "Contribute"
+                    )}
+                  </motion.button>
                 </div>
               </form>
             </div>

@@ -14,7 +14,8 @@ const ProtectedRoute = ({
   const { isAuthenticated, isLoading, userType } = useAuthStore();
 
   // Show loading state while checking authentication
-  if (isLoading) {
+  // Only show loader if we don't have a user type yet (initial load)
+  if (isLoading && !isAuthenticated) {
     return <Loader />;
   }
 
