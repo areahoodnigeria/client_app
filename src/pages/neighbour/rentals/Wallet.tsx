@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Wallet as WalletIcon, ArrowRight, Clock, ShieldCheck, X, Sparkles, TrendingUp, Landmark, CreditCard, ChevronRight } from "lucide-react";
 import api from "../../../api/api";
-import { requestWithdrawal } from "../../../api/activeRentalsApi";
+import { requestWithdrawal, getBanks, resolveAccount } from "../../../api/activeRentalsApi";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,9 +16,12 @@ export default function Wallet() {
   const [loading, setLoading] = useState(true);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [resolvingAccount, setResolvingAccount] = useState(false);
+  const [banks, setBanks] = useState<{ name: string; code: string }[]>([]);
   const [withdrawForm, setWithdrawForm] = useState({
     amount: "",
     bankName: "",
+    bankCode: "",
     accountNumber: "",
     accountName: ""
   });
@@ -26,6 +29,48 @@ export default function Wallet() {
   useEffect(() => {
     fetchWalletBalance();
   }, []);
+
+  useEffect(() => {
+      if (showWithdrawModal && banks.length === 0) {
+          fetchBanks();
+      }
+  }, [showWithdrawModal]);
+
+  useEffect(() => {
+      if (withdrawForm.accountNumber.length === 10 && withdrawForm.bankCode) {
+          handleResolveAccount();
+      } else {
+        // Reset account name if account number is invalid
+        if(withdrawForm.accountName) {
+             setWithdrawForm(prev => ({ ...prev, accountName: "" }));
+        }
+      }
+  }, [withdrawForm.accountNumber, withdrawForm.bankCode]);
+
+
+  const fetchBanks = async () => {
+      try {
+          const bankList = await getBanks();
+          setBanks(bankList);
+      } catch (error) {
+          toast.error("Failed to load banks");
+      }
+  }
+
+  const handleResolveAccount = async () => {
+      try {
+          setResolvingAccount(true);
+          const res = await resolveAccount(withdrawForm.accountNumber, withdrawForm.bankCode);
+          setWithdrawForm(prev => ({ ...prev, accountName: res.account_name }));
+          toast.success("Account verified: " + res.account_name);
+      } catch (error) {
+          toast.error("Could not verify account details");
+          setWithdrawForm(prev => ({ ...prev, accountName: "" }));
+      } finally {
+          setResolvingAccount(false);
+      }
+  }
+
 
   const fetchWalletBalance = async () => {
     try {
@@ -57,6 +102,11 @@ export default function Wallet() {
       return;
     }
 
+    if (!withdrawForm.accountName) {
+        toast.error("Please ensure account is verified");
+        return;
+    }
+
     try {
       setWithdrawLoading(true);
       const res = await requestWithdrawal({
@@ -69,7 +119,7 @@ export default function Wallet() {
       toast.success("Withdrawal request submitted!");
       setBalance(prev => ({ ...prev, wallet_balance: res.new_balance }));
       setShowWithdrawModal(false);
-      setWithdrawForm({ amount: "", bankName: "", accountNumber: "", accountName: "" });
+      setWithdrawForm({ amount: "", bankName: "", bankCode: "", accountNumber: "", accountName: "" });
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Withdrawal failed");
     } finally {
@@ -262,7 +312,7 @@ export default function Wallet() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowWithdrawModal(false)}
-              className="absolute inset-0 bg-foreground/40 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/40 backdrop-blur-md"
             />
             
             <motion.div
@@ -317,15 +367,26 @@ export default function Wallet() {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black italic uppercase tracking-widest text-muted-foreground ml-1">Merchant Bank</label>
                       <div className="relative">
-                        <Landmark className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
-                        <input
-                          type="text"
+                        <Landmark className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400 pointer-events-none z-10" />
+                        <select
                           required
-                          value={withdrawForm.bankName}
-                          onChange={(e) => setWithdrawForm({ ...withdrawForm, bankName: e.target.value })}
-                          className="w-full pl-14 pr-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm text-gray-900"
-                          placeholder="e.g. United Bank for Africa"
-                        />
+                          value={withdrawForm.bankCode}
+                          onChange={(e) => {
+                             const selectedBank = banks.find(b => b.code === e.target.value);
+                             setWithdrawForm({ ...withdrawForm, bankCode: e.target.value, bankName: selectedBank?.name || "" });
+                          }}
+                          className="w-full pl-14 pr-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm text-gray-900 appearance-none"
+                        >
+                          <option value="">Select Bank</option>
+                          {banks.map((bank) => (
+                            <option key={bank.code} value={bank.code}>
+                              {bank.name}
+                            </option>
+                          ))}
+                        </select>
+                         <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                            <ChevronRight className="w-4 h-4 rotate-90" />
+                         </div>
                       </div>
                     </div>
 
@@ -337,11 +398,17 @@ export default function Wallet() {
                            <input
                             type="text"
                             required
+                            maxLength={10}
                             value={withdrawForm.accountNumber}
                             onChange={(e) => setWithdrawForm({ ...withdrawForm, accountNumber: e.target.value })}
                             className="w-full pl-14 pr-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm text-gray-900"
                             placeholder="0123456789"
                            />
+                             {resolvingAccount && (
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                     <div className="h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                             )}
                         </div>
                       </div>
 
@@ -350,10 +417,10 @@ export default function Wallet() {
                         <input
                           type="text"
                           required
+                          readOnly
                           value={withdrawForm.accountName}
-                          onChange={(e) => setWithdrawForm({ ...withdrawForm, accountName: e.target.value })}
-                          className="w-full px-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm text-gray-900"
-                          placeholder="Your Legal Name"
+                          className="w-full px-6 py-5 rounded-[24px] bg-white/30 border border-white/50 focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm text-gray-900 cursor-not-allowed"
+                          placeholder="Auto-verified Name"
                         />
                       </div>
                     </div>

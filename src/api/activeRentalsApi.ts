@@ -90,3 +90,13 @@ export async function requestWithdrawal(payload: WithdrawalPayload) {
   const res = await api.post("/lendings/withdrawals", payload);
   return res.data;
 }
+
+export async function getBanks() {
+  const res = await api.get("/lendings/banks");
+  return res.data.banks;
+}
+
+export async function resolveAccount(accountNumber: string, bankCode: string) {
+  const res = await api.post("/lendings/banks/resolve", { accountNumber, bankCode });
+  return res.data;
+}
