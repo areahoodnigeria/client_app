@@ -12,6 +12,8 @@ import {
   LogOut,
   MapPin,
   Wallet,
+  LayoutDashboard,
+  Settings2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -238,6 +240,33 @@ export const organizationBottomLinks = [
     to: "/dashboard/settings",
     label: "Settings",
     icon: <Settings className="h-5 w-5" />,
+  },
+  { to: "/logout", label: "Logout", icon: <LogOut className="h-5 w-5" /> },
+];
+
+export const adminLinks = [
+  {
+    to: "/dashboard",
+    label: "Admin Overview",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    to: "/dashboard/withdrawals",
+    label: "Withdrawals",
+    icon: <Wallet className="h-5 w-5" />,
+  },
+  {
+    to: "/dashboard/users",
+    label: "Users",
+    icon: <Users className="h-5 w-5" />,
+  },
+];
+
+export const adminBottomLinks = [
+  {
+    to: "/dashboard/settings",
+    label: "Settings",
+    icon: <Settings2 className="h-5 w-5" />,
   },
   { to: "/logout", label: "Logout", icon: <LogOut className="h-5 w-5" /> },
 ];

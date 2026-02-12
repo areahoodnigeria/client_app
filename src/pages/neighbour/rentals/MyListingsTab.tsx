@@ -2,10 +2,28 @@ import { useEffect, useState } from "react";
 import { Package, Trash2, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getMyListings, deleteListing, type Listing } from "../../../api/listingsApi";
+import ConfirmationModal from "../../../components/dashboard/ConfirmationModal";
+import toast from "react-hot-toast";
 
 export default function MyListingsTab() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  // Modal state
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: React.ReactNode;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    confirmText: "",
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     fetchMyListings();
@@ -23,16 +41,31 @@ export default function MyListingsTab() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this listing?")) return;
-
-    try {
-      await deleteListing(id);
-      setListings(listings.filter((l) => l._id !== id));
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      alert("Failed to delete listing");
-    }
+  const handleDelete = (id: string, title: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Listing",
+      description: (
+        <>
+          This action is <span className="text-white font-bold">permanent</span>. Are you sure you want to delete <span className="text-white font-bold">{title}</span>?
+        </>
+      ),
+      confirmText: "DELETE LISTING",
+      onConfirm: async () => {
+        try {
+          setDeletingId(id);
+          await deleteListing(id);
+          setListings(listings.filter((l) => l._id !== id));
+          toast.success("Listing deleted successfully");
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Error deleting listing:", error);
+          toast.error("Failed to delete listing");
+        } finally {
+          setDeletingId(null);
+        }
+      }
+    });
   };
 
   if (loading) {
@@ -150,7 +183,8 @@ export default function MyListingsTab() {
                       <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                     <button
-                      onClick={() => handleDelete(listing._id)}
+                      onClick={() => handleDelete(listing._id, listing.title)}
+                      disabled={!!deletingId}
                       className="p-3 rounded-2xl glass-panel bg-white/50 hover:bg-red-500 hover:text-white transition-all shadow-sm border-white"
                       title="Remove Listing"
                     >
@@ -163,6 +197,17 @@ export default function MyListingsTab() {
           </motion.div>
         ))}
       </AnimatePresence>
+      
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        description={modalConfig.description}
+        confirmText={modalConfig.confirmText}
+        isLoading={!!deletingId}
+        variant="destructive"
+      />
     </div>
   );
 }

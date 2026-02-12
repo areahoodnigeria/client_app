@@ -40,3 +40,18 @@ export async function promoteUserAction(id: string) {
   const res = await api.patch(`/lendings/admin/users/${id}/promote`);
   return res.data;
 }
+
+export async function demoteUserAction(id: string) {
+  const res = await api.patch(`/lendings/admin/users/${id}/demote`);
+  return res.data;
+}
+
+export async function deleteUserAction(id: string) {
+  const res = await api.delete(`/lendings/admin/users/${id}`);
+  return res.data;
+}
+
+export async function getAdminStats() {
+  const res = await api.get("/lendings/admin/stats");
+  return res.data;
+}

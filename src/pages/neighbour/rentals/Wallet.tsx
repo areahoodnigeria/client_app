@@ -112,6 +112,7 @@ export default function Wallet() {
       const res = await requestWithdrawal({
         amount,
         bankName: withdrawForm.bankName,
+        bankCode: withdrawForm.bankCode,
         accountNumber: withdrawForm.accountNumber,
         accountName: withdrawForm.accountName
       });

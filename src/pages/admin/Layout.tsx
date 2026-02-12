@@ -1,88 +1,61 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import useAuthStore from "../../store/authStore";
-import { LogOut, Wallet, LayoutDashboard, Users } from "lucide-react";
+import { useState } from "react";
+import { Search } from "lucide-react";
+import { motion } from "framer-motion";
+import Sidebar, {
+  adminLinks,
+  adminBottomLinks,
+} from "../../components/dashboard/Sidebar";
+import { Outlet } from "react-router-dom";
 
 export default function AdminLayout() {
-  const { logout } = useAuthStore();
-  const location = useLocation();
-
-  const isActive = (path: string) => location.pathname.includes(path);
+  const [collapsed] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[hsl(var(--background))] relative flex overflow-x-hidden selection:bg-primary/30">
+      {/* Noise Overlay */}
+      <div className="noise-overlay" />
+
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-sm hidden md:block">
-        <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-gray-100">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                A
+      <Sidebar
+        collapsed={collapsed}
+        links={adminLinks}
+        bottomLinks={adminBottomLinks}
+        topOffset={0}
+      />
+
+      {/* Main content area */}
+      <main
+        className={`transition-all duration-500 flex flex-col items-center w-full min-h-screen ${
+          collapsed ? "pl-28 md:pl-32" : "pl-72"
+        } pr-6 py-10`}
+      >
+        <div className="container-custom w-full max-w-6xl">
+          {/* Sticky header area */}
+          <div className="sticky top-6 z-40 mb-12 flex items-center justify-between gap-4">
+             <motion.div 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="glass-card flex-1 rounded-2xl p-1.5 px-4 border"
+            >
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1 group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary transition-transform duration-300 group-focus-within:scale-110">
+                    <Search className="h-5 w-5" />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search users, transactions..."
+                    className="w-full pl-12 pr-12 py-3 rounded-xl bg-transparent border-none focus:ring-0 outline-none text-base placeholder:text-muted-foreground/40 transition-all font-medium"
+                  />
+                </div>
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                Admin
-              </span>
-            </Link>
+            </motion.div>
           </div>
 
-          <nav className="flex-1 px-4 py-6 space-y-1">
-            <Link
-              to="/dashboard"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                location.pathname === "/dashboard" || location.pathname === "/dashboard/"
-                  ? "bg-purple-50 text-purple-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <LayoutDashboard className={`w-5 h-5 ${
-                location.pathname === "/dashboard" ? "text-purple-600" : "text-gray-400 group-hover:text-gray-600"
-              }`} />
-              Dashboard
-            </Link>
-
-            <Link
-              to="/dashboard/withdrawals"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                isActive("/withdrawals")
-                  ? "bg-purple-50 text-purple-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <Wallet className={`w-5 h-5 ${
-                isActive("/withdrawals") ? "text-purple-600" : "text-gray-400 group-hover:text-gray-600"
-              }`} />
-              Withdrawals
-            </Link>
-
-            <Link
-              to="/dashboard/users"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                isActive("/users")
-                  ? "bg-purple-50 text-purple-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <Users className={`w-5 h-5 ${
-                isActive("/users") ? "text-purple-600" : "text-gray-400 group-hover:text-gray-600"
-              }`} />
-              Users
-            </Link>
-          </nav>
-
-          <div className="p-4 border-t border-gray-100">
-             <button
-              onClick={logout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 w-full transition-colors duration-200"
-            >
-              <LogOut className="w-5 h-5" />
-              Sign Out
-            </button>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <Outlet />
           </div>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 md:ml-64 p-8">
-        <Outlet />
       </main>
     </div>
   );

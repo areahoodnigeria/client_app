@@ -14,6 +14,7 @@ export interface RentalRequest {
   status: "pending" | "accepted" | "rejected" | "cancelled" | "expired";
   message?: string;
   rejectionReason?: string;
+  isPaid?: boolean; // True if payment has been completed
   createdAt: string;
   updatedAt: string;
 }

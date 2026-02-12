@@ -82,6 +82,7 @@ export async function markOverdue(id: string): Promise<ActiveRental> {
 export interface WithdrawalPayload {
   amount: number;
   bankName: string;
+  bankCode: string;
   accountNumber: string;
   accountName: string;
 }

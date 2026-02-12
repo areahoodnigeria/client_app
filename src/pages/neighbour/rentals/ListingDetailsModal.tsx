@@ -145,9 +145,11 @@ export default function ListingDetailsModal({
                         <Info className="w-5 h-5 text-orange-500" />
                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">About this item</h3>
                       </div>
-                      <p className="text-lg text-foreground/80 leading-relaxed font-medium">
-                        {listing.description}
-                      </p>
+                      <div className="max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                        <p className="text-lg text-foreground/80 leading-relaxed font-medium">
+                          {listing.description}
+                        </p>
+                      </div>
                     </section>
 
                     <div className="grid grid-cols-2 gap-6">
@@ -212,28 +214,28 @@ export default function ListingDetailsModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Collection Date</label>
-                        <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500" />
+                        <div className="relative z-10">
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500 pointer-events-none" />
                           <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             min={new Date().toISOString().split("T")[0]}
-                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/80 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none"
+                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/80 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none relative z-10 cursor-pointer"
                             required
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Return Date</label>
-                        <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500" />
+                        <div className="relative z-10">
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500 pointer-events-none" />
                           <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             min={startDate || new Date().toISOString().split("T")[0]}
-                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/80 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none"
+                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/80 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none relative z-10 cursor-pointer"
                             required
                           />
                         </div>

@@ -5,6 +5,8 @@ import CreateGroupModal from "./CreateGroupModal";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
+import ConfirmationModal from "../../components/dashboard/ConfirmationModal";
+import toast from "react-hot-toast";
 
 const Groups = () => {
   const navigate = useNavigate();
@@ -14,6 +16,22 @@ const Groups = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  // Modal state
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: React.ReactNode;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    confirmText: "",
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     fetchGroups();
@@ -52,16 +70,30 @@ const Groups = () => {
     fetchGroups();
   };
 
-  const handleDeleteGroup = async (groupId: string) => {
-    try {
-      setLoading(true);
-      await deleteGroup(groupId);
-      setGroups(prev => prev.filter(g => g._id !== groupId));
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to delete group");
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteGroup = async (groupId: string, groupName: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Group",
+      description: (
+        <>
+          This action is <span className="text-white font-bold">permanent</span>. Are you sure you want to delete <span className="text-white font-bold">{groupName}</span>?
+        </>
+      ),
+      confirmText: "DELETE GROUP",
+      onConfirm: async () => {
+        try {
+          setDeletingId(groupId);
+          await deleteGroup(groupId);
+          setGroups(prev => prev.filter(g => g._id !== groupId));
+          toast.success("Group deleted successfully");
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (err: any) {
+          toast.error(err.response?.data?.message || "Failed to delete group");
+        } finally {
+          setDeletingId(null);
+        }
+      }
+    });
   };
 
   return (
@@ -231,10 +263,9 @@ const Groups = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm("Are you sure you want to delete this group?")) {
-                            handleDeleteGroup(group._id);
-                          }
+                          handleDeleteGroup(group._id, group.name);
                         }}
+                        disabled={!!deletingId}
                         className="absolute top-4 right-4 z-20 p-2.5 glass-panel bg-red-500/80 text-white rounded-full hover:bg-red-600 transition-all opacity-0 group-hover:opacity-100 shadow-xl"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -322,6 +353,17 @@ const Groups = () => {
         open={showCreateModal} 
         onClose={() => setShowCreateModal(false)}
         onCreated={handleGroupCreated}
+      />
+      
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        description={modalConfig.description}
+        confirmText={modalConfig.confirmText}
+        isLoading={!!deletingId}
+        variant="destructive"
       />
     </div>
   );

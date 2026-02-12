@@ -8,13 +8,30 @@ import {
   type ActiveRental,
 } from "../../../api/activeRentalsApi";
 import type { UserSummary, Listing } from "../../../api/listingsApi";
-
 import { confirmHandover, confirmReceipt } from "../../../api/activeRentalsApi";
+import ConfirmationModal from "../../../components/dashboard/ConfirmationModal";
+import toast from "react-hot-toast";
 
 export default function ActiveRentalsTab() {
   const [view, setView] = useState<"lending" | "borrowing">("lending");
   const [rentals, setRentals] = useState<ActiveRental[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  
+  // Modal state
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: React.ReactNode;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    confirmText: "",
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     fetchRentals();
@@ -35,38 +52,85 @@ export default function ActiveRentalsTab() {
     }
   };
 
-  const handleComplete = async (id: string) => {
-    if (!confirm("Mark this rental as returned?")) return;
-
-    try {
-      await completeRental(id);
-      fetchRentals();
-    } catch (error) {
-      console.error("Error completing rental:", error);
-      alert("Failed to complete rental");
-    }
+  const handleComplete = (id: string, listingTitle: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Complete Rental",
+      description: (
+        <>
+          Mark <span className="text-white font-bold">{listingTitle}</span> as returned? This will finalize the rental transaction.
+        </>
+      ),
+      confirmText: "MARK AS RETURNED",
+      onConfirm: async () => {
+        try {
+          setProcessingId(id);
+          await completeRental(id);
+          toast.success("Rental marked as complete");
+          fetchRentals();
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Error completing rental:", error);
+          toast.error("Failed to complete rental");
+        } finally {
+          setProcessingId(null);
+        }
+      }
+    });
   };
 
-  const handleConfirmHandover = async (id: string) => {
-    if (!confirm("Confirm you have handed over the item?")) return;
-    try {
-      await confirmHandover(id);
-      fetchRentals();
-    } catch (error) {
-       console.error("Error confirming handover:", error);
-       alert("Failed to confirm handover");
-    }
+  const handleConfirmHandover = (id: string, listingTitle: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Confirm Handover",
+      description: (
+        <>
+          Confirm you have handed over <span className="text-white font-bold">{listingTitle}</span> to the borrower?
+        </>
+      ),
+      confirmText: "CONFIRM HANDOVER",
+      onConfirm: async () => {
+        try {
+          setProcessingId(id);
+          await confirmHandover(id);
+          toast.success("Handover confirmed");
+          fetchRentals();
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Error confirming handover:", error);
+          toast.error("Failed to confirm handover");
+        } finally {
+          setProcessingId(null);
+        }
+      }
+    });
   };
 
-  const handleConfirmReceipt = async (id: string) => {
-    if (!confirm("Confirm you have received the item? Funds will be released to the lender.")) return;
-    try {
-      await confirmReceipt(id);
-      fetchRentals();
-    } catch (error) {
-       console.error("Error confirming receipt:", error);
-       alert("Failed to confirm receipt");
-    }
+  const handleConfirmReceipt = (id: string, listingTitle: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Confirm Receipt",
+      description: (
+        <>
+          Confirm you have received <span className="text-white font-bold">{listingTitle}</span>? <span className="text-orange-400 font-bold">Funds will be released to the lender.</span>
+        </>
+      ),
+      confirmText: "CONFIRM RECEIPT",
+      onConfirm: async () => {
+        try {
+          setProcessingId(id);
+          await confirmReceipt(id);
+          toast.success("Receipt confirmed, funds released");
+          fetchRentals();
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Error confirming receipt:", error);
+          toast.error("Failed to confirm receipt");
+        } finally {
+          setProcessingId(null);
+        }
+      }
+    });
   };
 
 
@@ -242,7 +306,8 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleConfirmHandover(rental._id)}
+                                  onClick={() => handleConfirmHandover(rental._id, listing.title)}
+                                  disabled={!!processingId}
                                   className="flex-1 md:flex-none px-5 py-2 rounded-xl bg-orange-500 text-white text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-glow transition-all"
                                 >
                                   Handover
@@ -252,7 +317,8 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleComplete(rental._id)}
+                                  onClick={() => handleComplete(rental._id, listing.title)}
+                                  disabled={!!processingId}
                                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-green-500 text-white text-xs font-black uppercase tracking-widest shadow-lg"
                                 >
                                   <CheckCircle className="w-4 h-4" />
@@ -268,7 +334,8 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleConfirmReceipt(rental._id)}
+                                  onClick={() => handleConfirmReceipt(rental._id, listing.title)}
+                                  disabled={!!processingId}
                                   className="flex-1 md:flex-none px-5 py-2 rounded-xl bg-orange-500 text-white text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-glow transition-all"
                                 >
                                   Confirm Receipt
@@ -286,6 +353,17 @@ export default function ActiveRentalsTab() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        description={modalConfig.description}
+        confirmText={modalConfig.confirmText}
+        isLoading={!!processingId}
+        variant="normal"
+      />
     </div>
   );
 }

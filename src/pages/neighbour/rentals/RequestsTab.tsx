@@ -220,10 +220,15 @@ export default function RequestsTab() {
                       <div className="flex gap-2 mt-3">
                         <button
                           onClick={() => handlePayNow(request)}
-                          className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-medium hover:shadow-lg transition-all"
+                          disabled={request.isPaid}
+                          className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                            request.isPaid
+                              ? "bg-green-500/20 text-green-600 cursor-not-allowed"
+                              : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg"
+                          }`}
                         >
                           <CreditCard className="w-4 h-4" />
-                          Pay Now
+                          {request.isPaid ? "Paid ✓" : "Pay Now"}
                         </button>
                       </div>
                     )}
