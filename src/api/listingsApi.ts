@@ -13,7 +13,7 @@ export interface UserSummary {
   first_name: string;
   last_name: string;
   email: string;
-  profile_picture?: string;
+  profile_picture?: string | { url: string; public_id?: string };
 }
 
 export interface Listing {

@@ -50,7 +50,7 @@ export interface User {
   created_at?: string;
   first_name?: string;
   last_name?: string;
-  profile_picture?: string;
+  profile_picture?: string | { url: string; public_id?: string };
   location?: string;
 }
 
