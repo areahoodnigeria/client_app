@@ -76,22 +76,22 @@ export default function CreateGroupModal({
       <div className="glass-card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
              {/* Header */}
              <div className="relative p-6 md:p-8 border-b border-white/40 overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none" />
+                <div className="absolute top-0 right-0 p-12 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
                 <div className="flex items-center justify-between relative z-10">
                    <div>
-                      <div className="flex items-center gap-2 text-orange-500 mb-1">
+                      <div className="flex items-center gap-2 text-primary mb-1">
                          <Sparkles className="w-4 h-4" />
                          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Start a Movement</span>
                       </div>
                       <h2 className="text-3xl font-black text-foreground tracking-tight italic uppercase leading-none">
-                        Launch <span className="text-orange-500">Group</span>
+                        Launch <span className="text-primary">Group</span>
                       </h2>
                    </div>
                    <motion.button
                      whileHover={{ rotate: 90, scale: 1.1 }}
                      whileTap={{ scale: 0.9 }}
                      onClick={onClose}
-                     className="p-2.5 rounded-2xl bg-white/50 hover:bg-white text-orange-500 hover:text-orange-500 transition-all border border-white/40 shadow-sm"
+                     className="p-2.5 rounded-2xl bg-white/50 hover:bg-white text-primary hover:text-primary transition-all border border-white/40 shadow-sm"
                    >
                      <X className="h-5 w-5" />
                    </motion.button>
@@ -126,7 +126,7 @@ export default function CreateGroupModal({
                     
                     <motion.div 
                       whileHover={{ scale: 1.01 }}
-                      className="relative h-48 rounded-[32px] overflow-hidden border-2 border-dashed border-border hover:border-orange-500/50 bg-background/30 transition-all group cursor-pointer"
+                      className="relative h-48 rounded-[32px] overflow-hidden border-2 border-dashed border-border hover:border-primary/50 bg-background/30 transition-all group cursor-pointer"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       {imagePreview ? (
@@ -143,7 +143,7 @@ export default function CreateGroupModal({
                           </div>
                         </>
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-muted-foreground/60 transition-colors group-hover:text-orange-500/60">
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-muted-foreground/60 transition-colors group-hover:text-primary/60">
                           <div className="p-4 rounded-full bg-white/50 border border-white/60 shadow-inner group-hover:scale-110 transition-transform">
                              <ImageIcon className="h-8 w-8" />
                           </div>
@@ -164,7 +164,7 @@ export default function CreateGroupModal({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. DOWNTOWN RUNNERS"
-                        className="w-full px-6 py-5 rounded-[24px] bg-background/50 border border-border focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm placeholder:text-muted-foreground/40 text-foreground"
+                        className="w-full px-6 py-5 rounded-[24px] bg-background/50 border border-border focus:border-primary outline-none transition-all font-bold text-sm shadow-sm placeholder:text-muted-foreground/40 text-foreground"
                        />
                     </div>
 
@@ -177,7 +177,7 @@ export default function CreateGroupModal({
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="What inspires this community?"
                         rows={4}
-                        className="w-full px-6 py-5 rounded-[24px] bg-background/50 border border-border focus:border-orange-500 outline-none transition-all font-bold text-sm shadow-sm resize-none placeholder:text-muted-foreground/40 text-foreground"
+                        className="w-full px-6 py-5 rounded-[24px] bg-background/50 border border-border focus:border-primary outline-none transition-all font-bold text-sm shadow-sm resize-none placeholder:text-muted-foreground/40 text-foreground"
                        />
                     </div>
                   </div>
@@ -193,11 +193,11 @@ export default function CreateGroupModal({
                     Discard
                    </button>
                    <motion.button
-                    whileHover={{ scale: 1.02, backgroundColor: "#f97316" }}
+                    whileHover={{ scale: 1.02, backgroundColor: "hsl(var(--primary))" }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={loading || !name.trim() || !description.trim()}
-                    className="flex-[1.5] py-5 rounded-[24px] bg-foreground text-black shadow-premium disabled:opacity-50 disabled:cursor-not-allowed font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-colors"
+                    className="flex-[1.5] py-5 rounded-[24px] bg-primary text-primary-foreground shadow-premium disabled:opacity-50 disabled:cursor-not-allowed font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-colors"
                    >
                     {loading ? (
                        <Loader2 className="h-4 w-4 animate-spin" />

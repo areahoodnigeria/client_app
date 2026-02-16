@@ -183,7 +183,7 @@ export default function PaymentModal({
             <span className="text-lg font-semibold text-foreground">
               Total Amount
             </span>
-            <span className="text-2xl font-bold text-orange-500">
+            <span className="text-2xl font-bold text-primary">
               ₦{request.totalPrice.toLocaleString()}
             </span>
           </div>
@@ -205,8 +205,8 @@ export default function PaymentModal({
             disabled={isLoading}
             className={`w-full px-6 py-3 rounded-xl font-semibold transition-all ${
               isLoading
-                ? "bg-gray-400 cursor-not-allowed text-white/50"
-                : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg"
+                ? "bg-muted cursor-not-allowed text-white/50"
+                : "bg-primary text-primary-foreground hover:shadow-glow shadow-lg transition-all"
             }`}
           >
             {isLoading ? "Fetching details..." : "Pay Now"}

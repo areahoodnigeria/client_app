@@ -113,7 +113,7 @@ const Groups = () => {
               x: [-20, 20, -20]
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-orange-500 to-transparent blur-[120px] rounded-full"
+            className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-primary to-transparent blur-[120px] rounded-full"
           />
           <motion.div 
             animate={{ 
@@ -130,13 +130,13 @@ const Groups = () => {
            <motion.div 
              initial={{ scale: 0 }}
              animate={{ scale: 1 }}
-             className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 mb-2"
+             className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2"
            >
              <Globe className="w-3.5 h-3.5" />
              Connecting Neighbourhoods
            </motion.div>
            <h1 className="text-4xl md:text-6xl font-black text-muted-foreground tracking-tighter leading-none italic uppercase">
-             Community <span className="text-orange-500">Hub</span>
+             Community <span className="text-primary">Hub</span>
            </h1>
            <p className="text-white/60 text-sm md:text-base font-medium max-w-lg mx-auto">
              Join vibrant groups, start local discussions, and build meaningful connections with neighbors who share your passions.
@@ -147,7 +147,7 @@ const Groups = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowCreateModal(true)}
-                className="px-8 py-4 rounded-full bg-orange-500 text-white font-black uppercase tracking-widest text-xs shadow-2xl flex items-center gap-2 mx-auto"
+                className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs shadow-2xl flex items-center gap-2 mx-auto"
               >
                 <Plus className="h-4 w-4" />
                 Start Your Own Group
@@ -164,11 +164,11 @@ const Groups = () => {
       >
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-500" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
             <input
               type="text"
               placeholder="Discover interest groups, sports teams, or local clubs..."
-              className="w-full pl-14 pr-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-orange-500 transition-all font-bold text-sm md:text-base outline-none shadow-sm text-gray-900"
+              className="w-full pl-14 pr-6 py-5 rounded-[24px] bg-white/50 border border-white focus:border-primary transition-all font-bold text-sm md:text-base outline-none shadow-sm text-gray-900"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -177,7 +177,7 @@ const Groups = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit" 
-            className="px-10 py-5 rounded-[24px] bg-foreground text-background font-black uppercase tracking-widest text-xs shadow-lg hover:bg-orange-500 hover:text-white transition-colors"
+            className="px-10 py-5 rounded-[24px] bg-foreground text-background font-black uppercase tracking-widest text-xs shadow-lg hover:bg-primary-glow hover:text-white transition-colors"
           >
             Search Hub
           </motion.button>
@@ -289,7 +289,7 @@ const Groups = () => {
 
                   {/* Body */}
                   <div className="p-8 flex-1 flex flex-col space-y-4">
-                    <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-orange-500 transition-colors uppercase italic leading-none truncate">
+                    <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors uppercase italic leading-none truncate">
                       {group.name}
                     </h3>
                     <p className="text-sm font-medium text-muted-foreground line-clamp-3 leading-relaxed flex-1">
@@ -305,7 +305,7 @@ const Groups = () => {
                         className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 group/btn transition-all duration-300 ${
                           (group as any).isJoined 
                             ? "bg-green-500/10 text-green-600 border border-green-500/20 font-black uppercase tracking-widest text-[10px]" 
-                            : "bg-foreground text-background font-black uppercase tracking-[0.2em] text-[10px] hover:bg-orange-500 hover:text-white shadow-lg"
+                            : "bg-foreground text-background font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-glow hover:text-white shadow-lg"
                         }`}
                       >
                         {joiningId === group._id ? (

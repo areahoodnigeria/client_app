@@ -80,7 +80,7 @@ export default function RequestsTab() {
   if (loading) {
     return (
       <div className="glass-card p-12 text-center">
-        <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-muted-foreground">Loading requests...</p>
       </div>
     );
@@ -95,7 +95,7 @@ export default function RequestsTab() {
             onClick={() => setView("incoming")}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
               view === "incoming"
-                ? "bg-orange-500 text-white shadow-md"
+                ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-background/50 text-muted-foreground hover:bg-background"
             }`}
           >
@@ -105,7 +105,7 @@ export default function RequestsTab() {
             onClick={() => setView("outgoing")}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
               view === "outgoing"
-                ? "bg-orange-500 text-white shadow-md"
+                ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-background/50 text-muted-foreground hover:bg-background"
             }`}
           >
@@ -142,8 +142,8 @@ export default function RequestsTab() {
               >
                 <div className="flex gap-4">
                   {/* Listing Image */}
-                  <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 flex-shrink-0 overflow-hidden">
-                    {listing.images?.[0] ? (
+                  <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-primary/10 to-primary/20 flex-shrink-0 overflow-hidden">
+                    {listing?.images?.[0] ? (
                       <img
                         src={listing.images[0]}
                         alt={listing.title}
@@ -151,7 +151,7 @@ export default function RequestsTab() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Inbox className="w-8 h-8 text-orange-400" />
+                        <Inbox className="w-8 h-8 text-primary/40" />
                       </div>
                     )}
                   </div>
@@ -159,12 +159,12 @@ export default function RequestsTab() {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-semibold text-foreground mb-1">
-                      {listing.title}
+                      {listing?.title || "Unknown Listing"}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {view === "incoming" ? "Requested by" : "Requested from"}{" "}
                       <span className="font-medium text-foreground">
-                        {otherUser.first_name} {otherUser.last_name}
+                        {otherUser ? `${otherUser.first_name} ${otherUser.last_name}` : "Unknown User"}
                       </span>
                     </p>
                     <div className="flex flex-wrap gap-2 text-sm mb-3">
@@ -224,7 +224,7 @@ export default function RequestsTab() {
                           className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                             request.isPaid
                               ? "bg-green-500/20 text-green-600 cursor-not-allowed"
-                              : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg"
+                              : "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg"
                           }`}
                         >
                           <CreditCard className="w-4 h-4" />

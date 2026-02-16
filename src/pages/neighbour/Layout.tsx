@@ -18,7 +18,9 @@ import RentalsPage from "./rentals/RentalsPage";
 import Wallet from "./rentals/Wallet";
 import PostDetails from "./PostDetails";
 
-export default function NeighbourLayout() {
+import Posts from "./Posts";
+
+export default function Layout() {
   const [collapsed] = useState(true);
 
   // Home content is rendered via NeighbourHome component
@@ -75,6 +77,7 @@ export default function NeighbourLayout() {
               <Route path="invite" element={<InvitePage />} />
               <Route path="discover" element={<DiscoverPage />} />
               <Route path="discover/:id" element={<OrganizationDetails />} />
+              <Route path="posts" element={<Posts />} />
               <Route path="rentals" element={<RentalsPage />} />
               <Route path="wallet" element={<Wallet />} />
               <Route path="post/:postId" element={<PostDetails />} />

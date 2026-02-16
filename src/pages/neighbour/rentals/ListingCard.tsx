@@ -40,9 +40,9 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-orange-50 to-orange-100/30">
-            <DollarSign className="w-12 h-12 text-orange-200" />
-            <span className="text-xs font-semibold text-orange-300 mt-2 uppercase tracking-widest">No Image</span>
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-primary/5 to-primary/10">
+            <DollarSign className="w-12 h-12 text-primary/30" />
+            <span className="text-xs font-semibold text-primary/40 mt-2 uppercase tracking-widest">No Image</span>
           </div>
         )}
         
@@ -51,7 +51,7 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
 
         {/* Status/Category Badges */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 scale-90 origin-top-right transition-transform group-hover:scale-100">
-          <div className="px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-full bg-orange-500 text-white shadow-lg">
+          <div className="px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-full bg-primary text-primary-foreground shadow-lg">
             {listing.category}
           </div>
           {listing.condition && (
@@ -72,7 +72,7 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
       {/* Info Section */}
       <div className="p-5 flex-1 flex flex-col">
         <div className="mb-4">
-          <h3 className="text-lg font-bold text-foreground mb-1 leading-tight group-hover:text-orange-500 transition-colors">
+          <h3 className="text-lg font-bold text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
             {listing.title}
           </h3>
           <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -95,11 +95,11 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
           </div>
 
           <div className="flex items-center gap-3">
-             <div className="flex -space-x-2">
-                <div className="w-10 h-10 rounded-2xl glass-panel flex items-center justify-center text-orange-500 font-black text-sm border-white/50 shadow-sm relative z-10">
+              <div className="flex -space-x-2">
+                <div className="w-10 h-10 rounded-2xl glass-panel flex items-center justify-center text-primary font-black text-sm border-white/50 shadow-sm relative z-10">
                    {owner?.first_name?.[0]}
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-orange-500 flex items-center justify-center text-white font-black text-sm shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground font-black text-sm shadow-lg">
                    {owner?.last_name?.[0]}
                 </div>
              </div>

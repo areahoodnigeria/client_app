@@ -71,7 +71,7 @@ export default function MyListingsTab() {
   if (loading) {
     return (
       <div className="glass-panel p-24 text-center ">
-        <div className="inline-block w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="inline-block w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-6 text-muted-foreground font-black uppercase tracking-widest text-xs">Fetching your items...</p>
       </div>
     );
@@ -119,8 +119,8 @@ export default function MyListingsTab() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-orange-50">
-                    <Package className="w-10 h-10 text-orange-200" />
+                  <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                    <Package className="w-10 h-10 text-primary/20" />
                   </div>
                 )}
                 <div className="absolute top-2 right-2 flex gap-1">
@@ -135,10 +135,10 @@ export default function MyListingsTab() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center gap-3">
-                       <h3 className="text-xl font-black text-foreground truncate group-hover:text-orange-500 transition-colors">
+                       <h3 className="text-xl font-black text-foreground truncate group-hover:text-primary transition-colors">
                         {listing.title}
                        </h3>
-                       <span className="px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-full bg-orange-100/50 text-orange-600 border border-orange-200/50">
+                       <span className="px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-full bg-primary/10 text-primary border border-primary/20">
                           {listing.category}
                        </span>
                     </div>
@@ -177,7 +177,7 @@ export default function MyListingsTab() {
                   <div className="flex md:flex-col gap-2">
                     <button
                       onClick={() => {}} // TODO: Add Edit Functionality
-                      className="p-3 rounded-2xl glass-panel bg-white/50 hover:bg-orange-500 hover:text-white transition-all shadow-sm border-white animate-soft-pulse group/btn"
+                      className="p-3 rounded-2xl glass-panel bg-white/50 hover:bg-primary hover:text-white transition-all shadow-sm border-white animate-soft-pulse group/btn"
                       title="Edit Item"
                     >
                       <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />

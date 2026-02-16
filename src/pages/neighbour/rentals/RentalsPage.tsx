@@ -35,7 +35,7 @@ export default function RentalsPage() {
         animate={{ y: 0, opacity: 1 }}
         className="glass-panel p-6 md:p-8 relative overflow-hidden group"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
@@ -46,12 +46,11 @@ export default function RentalsPage() {
               Secure item sharing for a better neighborhood
             </p>
           </div>
-          
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-orange-500 text-white font-semibold shadow-premium hover:shadow-glow transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold shadow-premium hover:shadow-glow transition-all"
           >
             <Plus className="w-5 h-5" />
             <span>List an Item</span>
@@ -74,7 +73,7 @@ export default function RentalsPage() {
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId="active-rental-tab"
-                    className="absolute inset-0 bg-orange-500 rounded-xl shadow-lg"
+                    className="absolute inset-0 bg-primary rounded-xl shadow-lg"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}

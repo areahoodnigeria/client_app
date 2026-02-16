@@ -112,7 +112,7 @@ export default function ActiveRentalsTab() {
       title: "Confirm Receipt",
       description: (
         <>
-          Confirm you have received <span className="text-white font-bold">{listingTitle}</span>? <span className="text-orange-400 font-bold">Funds will be released to the lender.</span>
+          Confirm you have received <span className="text-white font-bold">{listingTitle}</span>? <span className="text-primary font-bold">Funds will be released to the lender.</span>
         </>
       ),
       confirmText: "CONFIRM RECEIPT",
@@ -144,7 +144,7 @@ export default function ActiveRentalsTab() {
   if (loading) {
     return (
       <div className="glass-panel p-20 text-center flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-6 text-muted-foreground font-medium animate-pulse">Syncing your rentals...</p>
       </div>
     );
@@ -163,7 +163,7 @@ export default function ActiveRentalsTab() {
           {view === "lending" && (
             <motion.div
               layoutId="rental-view-pill"
-              className="absolute inset-0 bg-orange-500 rounded-xl shadow-lg"
+              className="absolute inset-0 bg-primary rounded-xl shadow-lg"
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
             />
           )}
@@ -180,7 +180,7 @@ export default function ActiveRentalsTab() {
           {view === "borrowing" && (
             <motion.div
               layoutId="rental-view-pill"
-              className="absolute inset-0 bg-orange-500 rounded-xl shadow-lg"
+              className="absolute inset-0 bg-primary rounded-xl shadow-lg"
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
             />
           )}
@@ -230,20 +230,20 @@ export default function ActiveRentalsTab() {
                   transition={{ delay: idx * 0.05 }}
                   className="glass-panel p-5 md:p-6 group relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/[0.02] to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] to-transparent pointer-events-none" />
                   
                   <div className="flex flex-col md:flex-row gap-6 relative z-10">
                     {/* Listing Image */}
                     <div className="w-24 h-24 rounded-2xl bg-muted overflow-hidden flex-shrink-0 shadow-premium border border-white/50">
-                      {listing.images?.[0] ? (
+                      {listing?.images?.[0] ? (
                         <img
                           src={listing.images[0]}
                           alt={listing.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-orange-50">
-                          <Package className="w-8 h-8 text-orange-200" />
+                        <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                          <Package className="w-8 h-8 text-primary/20" />
                         </div>
                       )}
                     </div>
@@ -253,12 +253,12 @@ export default function ActiveRentalsTab() {
                       <div className="space-y-3">
                         <div>
                           <h3 className="text-xl font-black text-foreground group-hover:text-orange-500 transition-colors">
-                            {listing.title}
+                            {listing?.title || "Unknown Listing"}
                           </h3>
                           <p className="text-sm font-medium text-muted-foreground mt-1">
                             {view === "lending" ? "Borrowed by " : "Borrowed from "}
-                            <span className="text-foreground font-black underline decoration-orange-500/30">
-                              {otherUser.first_name} {otherUser.last_name}
+                            <span className="text-foreground font-black underline decoration-primary/30">
+                              {otherUser ? `${otherUser.first_name} ${otherUser.last_name}` : "Unknown User"}
                             </span>
                           </p>
                         </div>
@@ -306,7 +306,7 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleConfirmHandover(rental._id, listing.title)}
+                                  onClick={() => handleConfirmHandover(rental._id, listing?.title || "Unknown Listing")}
                                   disabled={!!processingId}
                                   className="flex-1 md:flex-none px-5 py-2 rounded-xl bg-orange-500 text-white text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-glow transition-all"
                                 >
@@ -317,7 +317,7 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleComplete(rental._id, listing.title)}
+                                  onClick={() => handleComplete(rental._id, listing?.title || "Unknown Listing")}
                                   disabled={!!processingId}
                                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-green-500 text-white text-xs font-black uppercase tracking-widest shadow-lg"
                                 >
@@ -334,7 +334,7 @@ export default function ActiveRentalsTab() {
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleConfirmReceipt(rental._id, listing.title)}
+                                  onClick={() => handleConfirmReceipt(rental._id, listing?.title || "Unknown Listing")}
                                   disabled={!!processingId}
                                   className="flex-1 md:flex-none px-5 py-2 rounded-xl bg-orange-500 text-white text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-glow transition-all"
                                 >

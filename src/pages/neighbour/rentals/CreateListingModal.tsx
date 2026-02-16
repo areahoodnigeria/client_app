@@ -54,6 +54,7 @@ export default function CreateListingModal({
         description: formData.description,
         category: formData.category,
         condition: formData.condition as any,
+        listingType: "rental",
         location: {
           coordinates,
           address: formData.address || undefined,
@@ -118,7 +119,7 @@ export default function CreateListingModal({
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., Electric Lawn Mower"
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
           </div>
@@ -134,7 +135,7 @@ export default function CreateListingModal({
               onChange={handleChange}
               placeholder="Describe your item..."
               rows={4}
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
               required
             />
           </div>
@@ -149,7 +150,7 @@ export default function CreateListingModal({
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
                 <option value="tools">Tools</option>
                 <option value="electronics">Electronics</option>
@@ -170,7 +171,7 @@ export default function CreateListingModal({
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
                 <option value="new">New</option>
                 <option value="like-new">Like New</option>
@@ -195,7 +196,7 @@ export default function CreateListingModal({
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
 
@@ -211,7 +212,7 @@ export default function CreateListingModal({
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
           </div>
@@ -229,7 +230,7 @@ export default function CreateListingModal({
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
 
@@ -245,7 +246,7 @@ export default function CreateListingModal({
               value={formData.address}
               onChange={handleChange}
               placeholder="e.g., Downtown, City"
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-background/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
 
@@ -261,7 +262,7 @@ export default function CreateListingModal({
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:shadow-glow shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating..." : "Create Listing"}
             </button>

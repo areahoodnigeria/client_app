@@ -93,7 +93,7 @@ export default function ListingDetailsModal({
                     {displayListing?.title}
                   </h2>
                   <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4 text-orange-500" />
+                    <MapPin className="w-4 h-4 text-primary" />
                     <span className="text-sm font-bold uppercase tracking-widest">{displayListing?.location?.address || "Local Area"}</span>
                   </div>
                </div>
@@ -142,7 +142,7 @@ export default function ListingDetailsModal({
                   <div className="md:col-span-2 space-y-8">
                     <section>
                       <div className="flex items-center gap-2 mb-4">
-                        <Info className="w-5 h-5 text-orange-500" />
+                        <Info className="w-5 h-5 text-primary" />
                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">About this item</h3>
                       </div>
                       <div className="max-h-32 overflow-y-auto custom-scrollbar pr-2">
@@ -165,7 +165,7 @@ export default function ListingDetailsModal({
                   </div>
 
                   <div className="space-y-6">
-                    <div className="p-6 rounded-3xl bg-orange-500 text-white shadow-xl shadow-orange-500/20">
+                    <div className="p-6 rounded-3xl bg-primary text-primary-foreground shadow-premium shadow-primary/20">
                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-1">Total Daily Rate</span>
                        <span className="text-3xl font-black tabular-nums">{getPriceDisplay()}</span>
                        {displayListing?.deposit && displayListing.deposit > 0 && (
@@ -200,7 +200,7 @@ export default function ListingDetailsModal({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     onClick={() => setShowRequestForm(true)}
-                    className="w-full py-5 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-sm shadow-2xl hover:bg-orange-500 hover:text-white transition-all duration-500"
+                    className="w-full py-5 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-sm shadow-2xl hover:bg-primary-glow hover:text-white transition-all duration-500"
                   >
                     Initiate Rental Request
                   </motion.button>
@@ -245,13 +245,13 @@ export default function ListingDetailsModal({
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Message to Neighbor</label>
                        <div className="relative">
-                          <MessageSquare className="absolute left-4 top-5 w-4 h-4 text-orange-500" />
+                          <MessageSquare className="absolute left-4 top-5 w-4 h-4 text-primary" />
                           <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Introduce yourself and explain what you need it for..."
                             rows={3}
-                            className="w-full pl-12 pr-4 py-4 rounded-3xl bg-white/80 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none resize-none"
+                            className="w-full pl-12 pr-4 py-4 rounded-3xl bg-white/80 border border-white focus:border-primary transition-colors font-bold text-sm outline-none resize-none"
                           />
                        </div>
                     </div>
@@ -273,7 +273,7 @@ export default function ListingDetailsModal({
                       <button
                         type="submit"
                         disabled={loading}
-                        className="flex-1 py-5 rounded-2xl bg-orange-500 text-white font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50"
+                        className="flex-1 py-5 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-glow transition-all disabled:opacity-50"
                       >
                         {loading ? "Transmitting..." : "Send Secured Request"}
                       </button>

@@ -68,26 +68,26 @@ export default function BrowseListingsTab() {
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
           {/* Search Input */}
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
             <input
               type="text"
               placeholder="What are you looking for today?"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-white focus:border-primary transition-colors font-bold text-sm outline-none"
             />
           </div>
 
           {/* Category Filter */}
           <div className="relative min-w-[200px]">
              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                <Filter className="w-4 h-4 text-orange-500" />
+                <Filter className="w-4 h-4 text-primary" />
                 <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mr-1">Sort</span>
              </div>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full pl-20 pr-10 py-4 rounded-2xl bg-white/50 border border-white focus:border-orange-500 transition-colors font-bold text-sm outline-none appearance-none cursor-pointer"
+              className="w-full pl-20 pr-10 py-4 rounded-2xl bg-white/50 border border-white focus:border-primary transition-colors font-bold text-sm outline-none appearance-none cursor-pointer"
             >
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -102,7 +102,7 @@ export default function BrowseListingsTab() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="px-8 py-4 rounded-2xl bg-foreground text-white font-black uppercase tracking-widest text-xs shadow-lg hover:bg-orange-500 transition-colors"
+            className="px-8 py-4 rounded-2xl bg-foreground text-white font-black uppercase tracking-widest text-xs shadow-lg hover:bg-primary transition-colors"
           >
             Find Items
           </motion.button>
