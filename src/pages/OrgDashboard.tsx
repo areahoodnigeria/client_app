@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import useAuthStore from "../store/authStore";
 import { motion } from "framer-motion";
 import { 
@@ -7,11 +8,43 @@ import {
   TrendingUp, 
   ArrowUpRight,
   Plus,
-  ArrowRight
+  ArrowRight,
+  Star
 } from "lucide-react";
+import { getMyBusinessReviews, type Review } from "../api/reviewsApi";
 
 export default function OrgDashboard() {
   const { user } = useAuthStore();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    try {
+      setLoadingReviews(true);
+      const data = await getMyBusinessReviews(5);
+      setReviews(data);
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return "just now";
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return date.toLocaleDateString();
+  };
 
   const stats = [
     { label: "Active Listings", value: "12", icon: <Package className="w-5 h-5" />, trend: "+2 this week", color: "blue" },
@@ -86,26 +119,74 @@ export default function OrgDashboard() {
           </div>
           
           <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="glass-card p-5 flex items-center gap-5 hover:bg-white/[0.05] border-white/[0.02] cursor-pointer"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-white/5 to-white/10 flex items-center justify-center font-bold text-white/40">
-                  {i}
+            {loadingReviews ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="glass-card p-5 animate-pulse">
+                  <div className="h-4 bg-muted/20 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-muted/20 rounded w-2/3" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-base font-bold text-foreground">Neighborhood Member #{i}</p>
-                  <p className="text-sm text-muted-foreground line-clamp-1">"Great service, very helpful for our local community event."</p>
-                </div>
-                <div className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-                  2h ago
-                </div>
-              </motion.div>
-            ))}
+              ))
+            ) : reviews.length === 0 ? (
+              <div className="glass-card p-8 text-center">
+                <p className="text-muted-foreground font-medium">No reviews yet. Encourage customers to leave feedback!</p>
+              </div>
+            ) : (
+              reviews.map((review, i) => {
+                const reviewer = typeof review.reviewer !== "string" ? review.reviewer : null;
+                const listing = typeof review.listing !== "string" ? review.listing : null;
+                const timeAgo = formatTimeAgo(review.createdAt);
+                
+                return (
+                  <motion.div 
+                    key={review._id} 
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="glass-card p-5 flex items-start gap-5 hover:bg-white/[0.05] border-white/[0.02] cursor-pointer"
+                  >
+                    {reviewer?.profile_picture && typeof reviewer.profile_picture !== "string" && reviewer.profile_picture.url ? (
+                      <img
+                        src={reviewer.profile_picture.url}
+                        alt={`${reviewer.first_name} ${reviewer.last_name}`}
+                        className="w-12 h-12 rounded-2xl object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-white/5 to-white/10 flex items-center justify-center font-bold text-white/40 text-sm">
+                        {reviewer ? `${reviewer.first_name[0]}${reviewer.last_name[0]}` : "?"}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-base font-bold text-foreground">
+                          {reviewer ? `${reviewer.first_name} ${reviewer.last_name}` : "Anonymous"}
+                        </p>
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, idx) => (
+                            <Star
+                              key={idx}
+                              className={`w-3 h-3 ${
+                                idx < review.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {listing && (
+                        <p className="text-xs text-primary font-bold mb-1">
+                          {listing.businessName}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground line-clamp-2">{review.comment}</p>
+                    </div>
+                    <div className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest whitespace-nowrap">
+                      {timeAgo}
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </section>
 

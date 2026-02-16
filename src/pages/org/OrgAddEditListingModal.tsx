@@ -1,21 +1,38 @@
-import { useState, useEffect } from "react";
-import { X, MapPin, Package, DollarSign, Tag, Info, Edit3 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, MapPin, Package, Tag, Info, Edit3, Upload, Trash2, Phone, Mail, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  type Listing, 
-  type CreateListingPayload, 
-  type UpdateListingPayload,
-  createListing,
-  updateListing
-} from "../../api/listingsApi";
+  type BusinessListing, 
+  type CreateBusinessListingPayload, 
+  type UpdateBusinessListingPayload,
+  createBusinessListing,
+  updateBusinessListing
+} from "../../api/businessListingsApi";
+import { uploadImages } from "../../api/uploadApi";
 import { toast } from "react-hot-toast";
 
 interface OrgAddEditListingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  listing?: Listing | null; // If provided, we're in edit mode
+  listing?: BusinessListing | null;
 }
+
+const BUSINESS_CATEGORIES = [
+  { value: "barber-shop", label: "Barber Shop" },
+  { value: "salon", label: "Salon" },
+  { value: "restaurant", label: "Restaurant" },
+  { value: "cafe", label: "Café" },
+  { value: "clothing-store", label: "Clothing Store" },
+  { value: "grocery", label: "Grocery" },
+  { value: "pharmacy", label: "Pharmacy" },
+  { value: "gym", label: "Gym/Fitness" },
+  { value: "laundry", label: "Laundry" },
+  { value: "electronics", label: "Electronics" },
+  { value: "hardware", label: "Hardware" },
+  { value: "services", label: "Services" },
+  { value: "other", label: "Other" }
+];
 
 export default function OrgAddEditListingModal({
   isOpen,
@@ -25,75 +42,165 @@ export default function OrgAddEditListingModal({
 }: OrgAddEditListingModalProps) {
   const isEdit = !!listing;
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  
   const [formData, setFormData] = useState({
-    title: "",
+    businessName: "",
     description: "",
-    category: "Tools",
-    pricePerDay: "",
-    pricePerWeek: "",
-    deposit: "",
-    condition: "Good",
-    address: "Lagos, Nigeria", // Default for now
+    category: "restaurant",
+    address: "",
+    phone: "",
+    email: "",
+    website: "",
+    priceRange: "" as "" | "$" | "$$" | "$$$",
   });
 
   useEffect(() => {
     if (listing) {
       setFormData({
-        title: listing.title,
+        businessName: listing.businessName || "",
         description: listing.description,
         category: listing.category,
-        pricePerDay: listing.pricePerDay?.toString() || "",
-        pricePerWeek: listing.pricePerWeek?.toString() || "",
-        deposit: listing.deposit?.toString() || "",
-        condition: listing.condition || "Good",
-        address: listing.location.address || "Lagos, Nigeria",
+        address: listing.location.address || "",
+        phone: listing.contactInfo?.phone || "",
+        email: listing.contactInfo?.email || "",
+        website: listing.contactInfo?.website || "",
+        priceRange: listing.priceRange || "",
       });
+      setExistingImages(listing.images || []);
     } else {
       setFormData({
-        title: "",
+        businessName: "",
         description: "",
-        category: "Tools",
-        pricePerDay: "",
-        pricePerWeek: "",
-        deposit: "",
-        condition: "Good",
-        address: "Lagos, Nigeria",
+        category: "restaurant",
+        address: "",
+        phone: "",
+        email: "",
+        website: "",
+        priceRange: "",
       });
+      setExistingImages([]);
     }
+    setSelectedImages([]);
+    setImagePreviews([]);
   }, [listing, isOpen]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not an image file`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    const totalImages = existingImages.length + selectedImages.length + validFiles.length;
+    if (totalImages > 5) {
+      toast.error("Maximum 5 images allowed");
+      return;
+    }
+
+    setSelectedImages(prev => [...prev, ...validFiles]);
+
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeSelectedImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImagesToBackend = async (): Promise<string[]> => {
+    if (selectedImages.length === 0) return [];
+
+    setUploadingImages(true);
+
+    try {
+      const uploadedUrls = await uploadImages(selectedImages);
+      return uploadedUrls;
+    } catch (error) {
+      toast.error('Failed to upload images');
+      throw error;
+    } finally {
+      setUploadingImages(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const payload: CreateListingPayload | UpdateListingPayload = {
-        title: formData.title,
+      const newImageUrls = await uploadImagesToBackend();
+      const allImages = [...existingImages, ...newImageUrls];
+
+      const payload: CreateBusinessListingPayload | UpdateBusinessListingPayload = {
+        listingType: "business",
+        businessName: formData.businessName,
         description: formData.description,
         category: formData.category,
-        condition: formData.condition,
+        images: allImages,
         location: {
-          coordinates: [3.3792, 6.5244], // Simulated coordinates
+          coordinates: [3.3792, 6.5244],
           address: formData.address,
         },
+        contactInfo: {
+          phone: formData.phone || undefined,
+          email: formData.email || undefined,
+          website: formData.website || undefined,
+        },
+        priceRange: formData.priceRange || undefined,
       };
 
-      if (formData.pricePerDay) payload.pricePerDay = parseFloat(formData.pricePerDay);
-      if (formData.pricePerWeek) payload.pricePerWeek = parseFloat(formData.pricePerWeek);
-      if (formData.deposit) payload.deposit = parseFloat(formData.deposit);
-
       if (isEdit && listing) {
-        await updateListing(listing._id, payload as UpdateListingPayload);
-        toast.success("Listing updated successfully!");
+        await updateBusinessListing(listing._id, payload as UpdateBusinessListingPayload);
+        toast.success("Business updated successfully!");
       } else {
-        await createListing(payload as CreateListingPayload);
-        toast.success("Listing created successfully!");
+        await createBusinessListing(payload as CreateBusinessListingPayload);
+        toast.success("Business listed successfully!");
       }
 
       onSuccess();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+      // Handle validation errors from backend
+      if (error.response?.status === 422 && error.response?.data?.error) {
+        const validationErrors = error.response.data.error;
+        // Show the first validation error message
+        if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+          toast.error(validationErrors[0].msg);
+        } else {
+          toast.error("Validation failed. Please check your inputs.");
+        }
+      } else if (error.response?.data?.message) {
+        // Show backend error message
+        toast.error(error.response.data.message);
+      } else {
+        // Fallback to generic error
+        toast.error(error.message || "Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
@@ -115,20 +222,20 @@ export default function OrgAddEditListingModal({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl glass-panel overflow-hidden bg-white/80 p-0 flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-3xl glass-panel overflow-hidden bg-white/80 p-0 flex flex-col max-h-[90vh]"
           >
             {/* Header */}
-            <div className="p-6 border-b border-white/20 flex items-center justify-between sticky top-0 bg-white/40 backdrop-blur-xl z-10">
+            <div className="p-6 border-b border-white/20 flex items-center justify-between bg-white/40 backdrop-blur-xl z-10 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   {isEdit ? <Edit3 className="w-5 h-5" /> : <Package className="w-5 h-5" />}
                 </div>
                 <div>
                   <h2 className="text-xl font-black tracking-tight">
-                    {isEdit ? "Edit Listing" : "Add New Listing"}
+                    {isEdit ? "Edit Business" : "List Your Business"}
                   </h2>
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                    Manage your community offering
+                    Connect with your neighborhood
                   </p>
                 </div>
               </div>
@@ -140,140 +247,256 @@ export default function OrgAddEditListingModal({
               </button>
             </div>
 
-            {/* Content */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-8 overflow-y-auto no-scrollbar">
-              <div className="space-y-6">
-                {/* Basic Info Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                    <Info className="w-3.5 h-3.5" /> Basic Information
-                  </div>
-                  
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Title</label>
-                      <input
-                        required
-                        placeholder="e.g. Premium Power Generator"
-                        className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Description</label>
-                      <textarea
-                        required
-                        rows={4}
-                        placeholder="Detail the specifications and usage rules..."
-                        className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all resize-none shadow-sm text-sm"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      />
-                    </div>
-                  </div>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <div 
+                className="p-8 space-y-8 overflow-y-auto flex-1" 
+                style={{ 
+                  maxHeight: 'calc(90vh - 200px)',
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+              {/* Basic Info */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  <Info className="w-3.5 h-3.5" /> Business Information
                 </div>
-
-                {/* Category & Pricing Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                    <Tag className="w-3.5 h-3.5" /> Categorization & Pricing
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Category</label>
-                      <select
-                        className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      >
-                        <option>Tools</option>
-                        <option>Spaces</option>
-                        <option>Electronics</option>
-                        <option>Apparel</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Condition</label>
-                      <select
-                        className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                        value={formData.condition}
-                        onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                      >
-                        <option>New</option>
-                        <option>Like New</option>
-                        <option>Good</option>
-                        <option>Fair</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Price per Day (₦)</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input
-                          type="number"
-                          placeholder="5000"
-                          className="w-full glass-input p-4 pl-10 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                          value={formData.pricePerDay}
-                          onChange={(e) => setFormData({ ...formData, pricePerDay: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-muted-foreground uppercase ml-1">Security Deposit (₦)</label>
-                      <div className="relative">
-                        <ShieldAlert className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input
-                          type="number"
-                          placeholder="2000"
-                          className="w-full glass-input p-4 pl-10 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                          value={formData.deposit}
-                          onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                    <MapPin className="w-3.5 h-3.5" /> Pickup Location
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Business Name *</label>
+                    <input
+                      required
+                      placeholder="e.g. Swift Barber Shop"
+                      className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                      value={formData.businessName}
+                      onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                    />
                   </div>
                   
                   <div className="space-y-1.5">
-                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Address</label>
-                    <input
-                      placeholder="Street, City, Area"
-                      className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Description *</label>
+                    <textarea
+                      required
+                      rows={4}
+                      placeholder="Describe your business, services, and what makes you special..."
+                      className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all resize-none shadow-sm text-sm"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-4 pt-4 sticky bottom-0 bg-white/20 backdrop-blur-md -m-8 p-8">
+              {/* Category & Pricing */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  <Tag className="w-3.5 h-3.5" /> Category & Pricing
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Category *</label>
+                    <select
+                      className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    >
+                      {BUSINESS_CATEGORIES.map(cat => (
+                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Price Range</label>
+                    <select
+                      className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                      value={formData.priceRange}
+                      onChange={(e) => setFormData({ ...formData, priceRange: e.target.value as any })}
+                    >
+                      <option value="">Select price range</option>
+                      <option value="$">$ - Budget Friendly</option>
+                      <option value="$$">$$ - Moderate</option>
+                      <option value="$$$">$$$ - Premium</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Images */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  <Upload className="w-3.5 h-3.5" /> Business Photos
+                </div>
+                
+                <div className="space-y-3">
+                  {existingImages.length > 0 && (
+                    <div>
+                      <label className="text-xs font-black text-muted-foreground uppercase ml-1 mb-2 block">
+                        Current Photos
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {existingImages.map((url, idx) => (
+                          <div key={idx} className="relative group">
+                            <img 
+                              src={url} 
+                              alt={`Current ${idx + 1}`}
+                              className="w-full h-24 object-cover rounded-xl border border-white/60"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingImage(idx)}
+                              className="absolute top-1 right-1 p-1.5 bg-destructive text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {imagePreviews.length > 0 && (
+                    <div>
+                      <label className="text-xs font-black text-muted-foreground uppercase ml-1 mb-2 block">
+                        New Photos
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {imagePreviews.map((preview, idx) => (
+                          <div key={idx} className="relative group">
+                            <img 
+                              src={preview} 
+                              alt={`Preview ${idx + 1}`}
+                              className="w-full h-24 object-cover rounded-xl border border-primary/40"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeSelectedImage(idx)}
+                              className="absolute top-1 right-1 p-1.5 bg-destructive text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {(existingImages.length + selectedImages.length) < 5 && (
+                    <div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full p-6 border-2 border-dashed border-white/60 rounded-xl hover:border-primary/40 transition-all bg-white/20 hover:bg-white/30 flex flex-col items-center gap-2"
+                      >
+                        <Upload className="w-6 h-6 text-muted-foreground" />
+                        <div className="text-center">
+                          <p className="text-sm font-black text-foreground">Upload Business Photos</p>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            Max 5 images, 5MB each
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  <Phone className="w-3.5 h-3.5" /> Contact Information
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Phone</label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="tel"
+                        placeholder="+234 XXX XXX XXXX"
+                        className="w-full glass-input p-4 pl-10 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Email</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="email"
+                        placeholder="business@example.com"
+                        className="w-full glass-input p-4 pl-10 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-xs font-black text-muted-foreground uppercase ml-1">Website</label>
+                    <div className="relative">
+                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="url"
+                        placeholder="https://yourbusiness.com"
+                        className="w-full glass-input p-4 pl-10 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  <MapPin className="w-3.5 h-3.5" /> Business Location
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-muted-foreground uppercase ml-1">Address *</label>
+                  <input
+                    required
+                    placeholder="Street, Area, City"
+                    className="w-full glass-input p-4 rounded-xl font-bold outline-none border-white/60 focus:border-primary/40 transition-all shadow-sm"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  />
+                </div>
+              </div>
+              </div>
+
+              {/* Actions - Outside scrollable area */}
+              <div className="flex gap-4 p-8 bg-white/20 backdrop-blur-md border-t border-white/20 flex-shrink-0">
                 <button
                   type="button"
                   onClick={onClose}
                   className="flex-1 p-4 rounded-2xl font-black text-sm bg-white/60 text-muted-foreground hover:bg-white transition-all border border-white/40"
                 >
-                  Discard
+                  Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || uploadingImages}
                   className="flex-[2] bg-primary text-white p-4 rounded-2xl font-black text-sm shadow-glow shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
                 >
-                  {loading ? "Processing..." : isEdit ? "Update Listing" : "Create Listing"}
+                  {uploadingImages ? "Uploading photos..." : loading ? "Processing..." : isEdit ? "Update Business" : "List Business"}
                 </button>
               </div>
             </form>
@@ -283,9 +506,3 @@ export default function OrgAddEditListingModal({
     </AnimatePresence>
   );
 }
-
-const ShieldAlert = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-  </svg>
-);

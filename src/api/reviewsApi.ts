@@ -47,3 +47,25 @@ export async function getListingReviews(listingId: string): Promise<ReviewsRespo
   const res = await api.get(`/lendings/listings/${listingId}/reviews`);
   return res.data;
 }
+
+// ============ BUSINESS LISTING REVIEWS ============
+
+export async function createBusinessReview(
+  listingId: string,
+  payload: { rating: number; comment: string }
+): Promise<Review> {
+  const res = await api.post(`/businesses/listings/${listingId}/reviews`, payload);
+  return res.data.review;
+}
+
+export async function getBusinessReviews(listingId: string): Promise<Review[]> {
+  const res = await api.get(`/businesses/listings/${listingId}/reviews`);
+  return res.data.reviews;
+}
+
+export async function getMyBusinessReviews(limit?: number): Promise<Review[]> {
+  const res = await api.get(`/businesses/my-reviews`, {
+    params: { limit }
+  });
+  return res.data.reviews;
+}

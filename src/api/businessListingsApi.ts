@@ -16,12 +16,15 @@ export interface UserSummary {
   profile_picture?: string;
 }
 
-export interface Listing {
+export interface BusinessListing {
   _id: string;
-  listingType: "business" | "rental";
-  
-  // Business fields
-  businessName?: string;
+  listingType: "business";
+  businessName: string;
+  description: string;
+  category: string;
+  images: string[];
+  owner: UserSummary | string;
+  location: Location;
   contactInfo?: {
     phone?: string;
     email?: string;
@@ -38,33 +41,17 @@ export interface Listing {
   };
   priceRange?: "$" | "$$" | "$$$";
   amenities?: string[];
+  status: "active" | "inactive";
   ratings?: {
     average: number;
     count: number;
   };
-  
-  // Rental fields
-  title?: string;
-  pricePerDay?: number;
-  pricePerWeek?: number;
-  deposit?: number;
-  condition?: "New" | "Like New" | "Good" | "Fair";
-  availability?: boolean;
-  
-  // Common fields
-  description: string;
-  category: string;
-  images: string[];
-  owner: UserSummary | string;
-  location: Location;
-  status: "active" | "inactive" | "rented";
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateListingPayload {
-  listingType: "business" | "rental";
-  businessName?: string;
+export interface CreateBusinessListingPayload {
+  businessName: string;
   description: string;
   category: string;
   images?: string[];
@@ -88,16 +75,9 @@ export interface CreateListingPayload {
   };
   priceRange?: "$" | "$$" | "$$$";
   amenities?: string[];
-  title?: string;
-  pricePerDay?: number;
-  pricePerWeek?: number;
-  deposit?: number;
-  condition?: "New" | "Like New" | "Good" | "Fair";
-  availability?: boolean;
 }
 
-export interface UpdateListingPayload {
-  listingType?: "business" | "rental";
+export interface UpdateBusinessListingPayload {
   businessName?: string;
   description?: string;
   category?: string;
@@ -122,53 +102,46 @@ export interface UpdateListingPayload {
   };
   priceRange?: "$" | "$$" | "$$$";
   amenities?: string[];
-  status?: "active" | "inactive" | "rented";
-  title?: string;
-  pricePerDay?: number;
-  pricePerWeek?: number;
-  deposit?: number;
-  condition?: "New" | "Like New" | "Good" | "Fair";
-  availability?: boolean;
+  status?: "active" | "inactive";
 }
 
-export interface GetListingsParams {
+export interface GetBusinessListingsParams {
   category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  status?: string;
+  priceRange?: "$" | "$$" | "$$$";
   search?: string;
   longitude?: number;
   latitude?: number;
   maxDistance?: number;
+  ownerId?: string;
 }
 
 // ============ API FUNCTIONS ============
 
-export async function createListing(payload: CreateListingPayload): Promise<Listing> {
-  const res = await api.post("/lendings/listings", payload);
+export async function createBusinessListing(payload: CreateBusinessListingPayload): Promise<BusinessListing> {
+  const res = await api.post("/businesses/listings", payload);
   return res.data.listing;
 }
 
-export async function getListings(params?: GetListingsParams): Promise<Listing[]> {
-  const res = await api.get("/lendings/listings", { params });
+export async function getBusinessListings(params?: GetBusinessListingsParams): Promise<BusinessListing[]> {
+  const res = await api.get("/businesses/listings", { params });
   return res.data.listings || [];
 }
 
-export async function getListingById(id: string): Promise<Listing> {
-  const res = await api.get(`/lendings/listings/${id}`);
+export async function getBusinessListingById(id: string): Promise<BusinessListing> {
+  const res = await api.get(`/businesses/listings/${id}`);
   return res.data.listing;
 }
 
-export async function updateListing(id: string, payload: UpdateListingPayload): Promise<Listing> {
-  const res = await api.patch(`/lendings/listings/${id}`, payload);
+export async function updateBusinessListing(id: string, payload: UpdateBusinessListingPayload): Promise<BusinessListing> {
+  const res = await api.patch(`/businesses/listings/${id}`, payload);
   return res.data.listing;
 }
 
-export async function deleteListing(id: string): Promise<void> {
-  await api.delete(`/lendings/listings/${id}`);
+export async function deleteBusinessListing(id: string): Promise<void> {
+  await api.delete(`/businesses/listings/${id}`);
 }
 
-export async function getMyListings(): Promise<Listing[]> {
-  const res = await api.get("/lendings/me/listings");
+export async function getMyBusinessListings(): Promise<BusinessListing[]> {
+  const res = await api.get("/businesses/my-listings");
   return res.data.listings || [];
 }

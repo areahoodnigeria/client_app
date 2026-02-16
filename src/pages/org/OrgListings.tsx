@@ -10,21 +10,25 @@ import {
   AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getMyListings, deleteListing, type Listing } from "../../api/listingsApi";
+import { getMyBusinessListings, deleteBusinessListing, type BusinessListing } from "../../api/businessListingsApi";
 import { toast } from "react-hot-toast";
 import OrgAddEditListingModal from "./OrgAddEditListingModal";
+import ConfirmationModal from "../../components/dashboard/ConfirmationModal";
 
 export default function OrgListings() {
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<BusinessListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [selectedListing, setSelectedListing] = useState<BusinessListing | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState<BusinessListing | null>(null);
 
   const fetchListings = async () => {
     try {
       setLoading(true);
-      const data = await getMyListings();
+      const data = await getMyBusinessListings();
       setListings(data);
     } catch (error: any) {
       toast.error("Failed to fetch listings");
@@ -38,18 +42,23 @@ export default function OrgListings() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this listing?")) return;
-    
     try {
-      await deleteListing(id);
+      await deleteBusinessListing(id);
       toast.success("Listing deleted successfully");
       fetchListings();
+      setDeleteModalOpen(false);
+      setListingToDelete(null);
     } catch (error: any) {
       toast.error("Failed to delete listing");
     }
   };
 
-  const handleEdit = (listing: Listing) => {
+  const handleDeleteClick = (listing: BusinessListing) => {
+    setListingToDelete(listing);
+    setDeleteModalOpen(true);
+  };
+
+  const handleEdit = (listing: BusinessListing) => {
     setSelectedListing(listing);
     setIsModalOpen(true);
   };
@@ -59,10 +68,13 @@ export default function OrgListings() {
     setIsModalOpen(true);
   };
 
-  const filteredListings = listings.filter(l => 
-    l.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredListings = listings.filter(l => {
+    const matchesSearch = l.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "All Categories" || 
+      l.category.toLowerCase() === selectedCategory.toLowerCase();
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-8 pb-12">
@@ -93,11 +105,25 @@ export default function OrgListings() {
           />
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-          <select className="flex-1 md:w-40 bg-white/40 border-white/60 rounded-xl py-3 px-4 font-bold text-sm outline-none focus:border-primary/40 transition-all">
-            <option>All Categories</option>
-            <option>Spaces</option>
-            <option>Tools</option>
-            <option>Services</option>
+          <select 
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="flex-1 md:w-40 bg-white/40 border-white/60 rounded-xl py-3 px-4 font-bold text-sm outline-none focus:border-primary/40 transition-all"
+          >
+            <option value="All Categories">All Categories</option>
+            <option value="barber-shop">Barber Shop</option>
+            <option value="salon">Salon</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="cafe">Café</option>
+            <option value="clothing-store">Clothing Store</option>
+            <option value="grocery">Grocery</option>
+            <option value="pharmacy">Pharmacy</option>
+            <option value="gym">Gym/Fitness</option>
+            <option value="laundry">Laundry</option>
+            <option value="electronics">Electronics</option>
+            <option value="hardware">Hardware</option>
+            <option value="services">Services</option>
+            <option value="other">Other</option>
           </select>
         </div>
       </div>
@@ -130,7 +156,7 @@ export default function OrgListings() {
                 
                 <div className="flex-1 text-center md:text-left space-y-1">
                   <div className="flex items-center justify-center md:justify-start gap-2">
-                    <h3 className="text-lg font-black">{listing.title}</h3>
+                    <h3 className="text-lg font-black">{listing.businessName}</h3>
                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border uppercase tracking-widest ${
                       listing.status === "active" 
                         ? "bg-green-100 text-green-600 border-green-200" 
@@ -140,20 +166,18 @@ export default function OrgListings() {
                     </span>
                   </div>
                   <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-                    {listing.category} • ₦{listing.pricePerDay || listing.pricePerWeek || 0}
+                    {listing.category.replace("-", " ")} {listing.priceRange && `• ${listing.priceRange}`}
                   </p>
                 </div>
 
                 <div className="items-center gap-8 px-8 border-x border-white/20 hidden lg:flex">
                   <div className="text-center">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Availability</p>
-                    <p className={`text-lg font-black ${listing.availability ? "text-primary" : "text-muted-foreground"}`}>
-                      {listing.availability ? "YES" : "NO"}
-                    </p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Contact</p>
+                    <p className="text-sm font-black">{listing.contactInfo?.phone || "N/A"}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Condition</p>
-                    <p className="text-lg font-black">{listing.condition || "N/A"}</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Rating</p>
+                    <p className="text-sm font-black">{listing.ratings?.average ? `⭐ ${listing.ratings.average.toFixed(1)}` : "No ratings"}</p>
                   </div>
                 </div>
 
@@ -165,7 +189,7 @@ export default function OrgListings() {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button 
-                    onClick={() => handleDelete(listing._id)}
+                    onClick={() => handleDeleteClick(listing)}
                     className="p-3 bg-white/50 rounded-xl hover:bg-white transition-colors text-muted-foreground hover:text-destructive active:scale-95"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -203,6 +227,19 @@ export default function OrgListings() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchListings}
         listing={selectedListing}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setListingToDelete(null);
+        }}
+        onConfirm={() => listingToDelete && handleDelete(listingToDelete._id)}
+        title="Delete Business"
+        description={`Are you sure you want to delete "${listingToDelete?.businessName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="destructive"
       />
     </div>
   );

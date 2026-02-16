@@ -282,7 +282,11 @@ const Index = () => {
         }
       });
       
-      requestAnimationFrame(animate);
+      const requestId = requestAnimationFrame(animate);
+      
+      return () => {
+        cancelAnimationFrame(requestId);
+      };
       
     }, containerRef);
 
