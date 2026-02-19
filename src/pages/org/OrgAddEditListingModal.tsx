@@ -157,7 +157,6 @@ export default function OrgAddEditListingModal({
       const allImages = [...existingImages, ...newImageUrls];
 
       const payload: CreateBusinessListingPayload | UpdateBusinessListingPayload = {
-        listingType: "business",
         businessName: formData.businessName,
         description: formData.description,
         category: formData.category,

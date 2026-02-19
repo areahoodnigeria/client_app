@@ -183,7 +183,7 @@ export default function MyListingsTab() {
                       <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                     <button
-                      onClick={() => handleDelete(listing._id, listing.title)}
+                      onClick={() => handleDelete(listing._id, listing.title || "Untitled Listing")}
                       disabled={!!deletingId}
                       className="p-3 rounded-2xl glass-panel bg-white/50 hover:bg-red-500 hover:text-white transition-all shadow-sm border-white"
                       title="Remove Listing"
