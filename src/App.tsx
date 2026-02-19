@@ -29,9 +29,8 @@ import SmoothScroll from "./components/SmoothScroll";
 function App() {
   const { token, user, fetchUser } = useAuthStore();
   useEffect(() => {
-    console.log(token);
-
-    if (token && !user) {
+    // Check if token exists but user data is incomplete (e.g. missing id)
+    if (token && (!user || !user.id || user.id === "")) {
       fetchUser().catch(() => {
         // handled via interceptor
       });
